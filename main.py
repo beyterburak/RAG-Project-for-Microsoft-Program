@@ -6,6 +6,7 @@ Komutlar:
   python main.py embed-demo  Embedding benzerlik demosu (Hafta 1, Gün 3-4)
   python main.py db-demo     SQLite şema + serileştirme testi (Hafta 1, Gün 5)
   python main.py prompt-demo Prompt şablonu davranış gözlemi (Hafta 1, Gün 6)
+  python main.py integration-test  Hafta 1 uçtan uca entegrasyon testi (Gün 7)
 """
 
 import argparse
@@ -19,6 +20,7 @@ def main() -> None:
     sub.add_parser("embed-demo", help="Embedding benzerlik demosu")
     sub.add_parser("db-demo", help="SQLite şema + serileştirme testi")
     sub.add_parser("prompt-demo", help="Prompt şablonu davranış gözlemi")
+    sub.add_parser("integration-test", help="Hafta 1 uçtan uca entegrasyon testi")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -35,6 +37,9 @@ def main() -> None:
         run()
     elif args.command == "prompt-demo":
         from src.prompt_demo import run
+        run()
+    elif args.command == "integration-test":
+        from src.integration_test import run
         run()
 
 
