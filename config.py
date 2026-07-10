@@ -23,7 +23,8 @@ DATA_DIR = PROJECT_ROOT / "data"
 DB_PATH = PROJECT_ROOT / "rag.db"
 EVAL_DIR = PROJECT_ROOT / "eval"
 
-# --- RAG parametreleri (Hafta 2'de deneylerle ayarlanacak) ---
+# --- RAG parametreleri ---
 CHUNK_SIZE = 800        # karakter cinsinden hedef parça boyutu (~1-3 paragraf)
 CHUNK_OVERLAP = 150     # ardışık parçalar arası örtüşme (karakter)
 TOP_K = 4               # geri getirilecek parça sayısı
+EMBED_BATCH_SIZE = 16   # tek istekte embed edilecek parça sayısı

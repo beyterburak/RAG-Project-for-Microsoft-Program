@@ -8,6 +8,7 @@ Komutlar:
   python main.py prompt-demo Prompt şablonu davranış gözlemi (Hafta 1, Gün 6)
   python main.py integration-test  Hafta 1 uçtan uca entegrasyon testi (Gün 7)
   python main.py chunk-demo  Belge parçalama istatistikleri (Hafta 2, Gün 8-9)
+  python main.py ingest      Belgeleri embed edip rag.db'ye yaz (Gün 10-11)
 """
 
 import argparse
@@ -23,6 +24,7 @@ def main() -> None:
     sub.add_parser("prompt-demo", help="Prompt şablonu davranış gözlemi")
     sub.add_parser("integration-test", help="Hafta 1 uçtan uca entegrasyon testi")
     sub.add_parser("chunk-demo", help="Belge parçalama istatistikleri")
+    sub.add_parser("ingest", help="Belgeleri embed edip rag.db'ye yaz")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -45,6 +47,9 @@ def main() -> None:
         run()
     elif args.command == "chunk-demo":
         from src.chunking import run
+        run()
+    elif args.command == "ingest":
+        from src.ingest import run
         run()
 
 
