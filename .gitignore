@@ -4,4 +4,3 @@ __pycache__/
 rag.db
 foundry_local_data/
 .vscode/
-eval/results/

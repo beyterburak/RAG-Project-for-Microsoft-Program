@@ -1,0 +1,31 @@
+{
+  "description": "Baseline ve corrective RAG değerlendirme seti. answerable: cevap belgede var, expected_sources içinden en az biri top-K'da olmalı ve cevap keywords'ten en az birini içermeli. unanswerable: sistem ret cevabı (REFUSAL) vermeli.",
+  "questions": [
+    {"id": 1, "type": "answerable", "question": "Zyntrix X9'un pil ömrü standart modda kaç saattir?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["14"]},
+    {"id": 2, "type": "answerable", "question": "Zyntrix X9 kaç gram ağırlığında?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["86"]},
+    {"id": 3, "type": "answerable", "question": "Ekranda E-07 hatası görürsem ne yapmalıyım?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["ızgara", "temizl"]},
+    {"id": 4, "type": "answerable", "question": "Zyntrix X9 suya dayanıklı mı?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["IP54", "sıçrama"]},
+    {"id": 5, "type": "answerable", "question": "Zyntrix X9 hangi sıcaklık aralığında çalışır?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["-10", "45"]},
+    {"id": 6, "type": "answerable", "question": "Zyntrix X9'un garanti süresi ne kadar?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["2 yıl", "iki yıl", "500"]},
+    {"id": 7, "type": "answerable", "question": "Zyntrix X9 USB-C ile kaç dakikada tam şarj olur?", "expected_sources": ["zyntrix_x9_kilavuz.md"], "keywords": ["90"]},
+    {"id": 8, "type": "answerable", "question": "X9 ile X9 Pro arasındaki farklar nelerdir?", "expected_sources": ["zyntrix_sss.md"], "keywords": ["nem", "IP67", "21"]},
+    {"id": 9, "type": "answerable", "question": "Zyntrix Link uygulamasına en fazla kaç cihaz bağlanır?", "expected_sources": ["zyntrix_sss.md"], "keywords": ["8"]},
+    {"id": 10, "type": "answerable", "question": "CO2 kaç ppm üzerinde havalandırma yapılmalı?", "expected_sources": ["zyntrix_sss.md"], "keywords": ["1200", "1000"]},
+    {"id": 11, "type": "answerable", "question": "Zyntrix X9 verilerimi USB ile bilgisayara aktarabilir miyim?", "expected_sources": ["zyntrix_sss.md"], "keywords": ["desteklenmez", "yalnızca şarj", "sadece şarj", "CSV"]},
+    {"id": 12, "type": "answerable", "question": "Firmware 2.1 sürümünde hangi yenilikler geldi?", "expected_sources": ["zyntrix_surum_notlari.md"], "keywords": ["Eco", "120"]},
+    {"id": 13, "type": "answerable", "question": "Sürüm 2.3 ile Eco modda pil ömrü kaç saate çıktı?", "expected_sources": ["zyntrix_surum_notlari.md"], "keywords": ["26"]},
+    {"id": 14, "type": "answerable", "question": "Firmware güncellemesi için pil en az yüzde kaç dolu olmalı?", "expected_sources": ["zyntrix_surum_notlari.md", "zyntrix_sss.md"], "keywords": ["30"]},
+    {"id": 15, "type": "answerable", "question": "Perceptron modelini kim geliştirdi?", "expected_sources": ["ders_yapay_sinir_aglari.md"], "keywords": ["Rosenblatt"]},
+    {"id": 16, "type": "answerable", "question": "Backpropagation yönteminde ağırlıklar nasıl güncellenir?", "expected_sources": ["ders_yapay_sinir_aglari.md"], "keywords": ["hata", "geriye"]},
+    {"id": 17, "type": "answerable", "question": "İlişkisel veri modelini kim, ne zaman geliştirdi?", "expected_sources": ["ders_veritabanlari.md"], "keywords": ["Codd", "1970"]},
+    {"id": 18, "type": "answerable", "question": "NoSQL veritabanlarına hangi örnekler verilebilir?", "expected_sources": ["ders_veritabanlari.md"], "keywords": ["Redis", "DynamoDB", "Couchbase"]},
+    {"id": 19, "type": "answerable", "question": "Büyük O gösterimini ilk kim, hangi eserde kullandı?", "expected_sources": ["ders_algoritma_karmasikligi.md"], "keywords": ["Bachmann", "1892"]},
+    {"id": 20, "type": "answerable", "question": "Birleştirmeli sıralamanın (merge sort) karmaşıklığı nedir?", "expected_sources": ["ders_algoritma_karmasikligi.md"], "keywords": ["n log n"]},
+    {"id": 21, "type": "unanswerable", "question": "Zyntrix X9'un satış fiyatı ne kadar?", "expected_sources": [], "keywords": []},
+    {"id": 22, "type": "unanswerable", "question": "Zyntrix X9 hangi renk seçenekleriyle satılıyor?", "expected_sources": [], "keywords": []},
+    {"id": 23, "type": "unanswerable", "question": "Zyntrix Teknoloji A.Ş. hangi yıl kuruldu?", "expected_sources": [], "keywords": []},
+    {"id": 24, "type": "unanswerable", "question": "Quicksort algoritmasının en kötü durum karmaşıklığı nedir?", "expected_sources": [], "keywords": []},
+    {"id": 25, "type": "unanswerable", "question": "Geoffrey Hinton hangi üniversitede çalışıyor?", "expected_sources": [], "keywords": []},
+    {"id": 26, "type": "unanswerable", "question": "PostgreSQL'in en son sürümü hangisi?", "expected_sources": [], "keywords": []}
+  ]
+}

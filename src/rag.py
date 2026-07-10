@@ -67,9 +67,11 @@ class RagSession:
         t2 = time.perf_counter()
 
         answer = (response.choices[0].message.content or "").strip()
-        is_refusal = answer.startswith(REFUSAL)
+        # Ret tespiti: model ret cümlesini bazen açıklamanın sonuna koyuyor,
+        # o yüzden başlangıç değil içerme kontrolü yapılır.
+        is_refusal = REFUSAL in answer
         if is_refusal:
-            answer = REFUSAL  # ret cevabındaki gereksiz kaynak kuyruğunu kırp
+            answer = REFUSAL  # ret cevabındaki açıklama/kaynak kuyruğunu kırp
 
         return Answer(question, answer, chunks, is_refusal, t1 - t0, t2 - t1)
 

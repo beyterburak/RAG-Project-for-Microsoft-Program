@@ -12,6 +12,7 @@ Komutlar:
   python main.py retrieve [soru]  Top-K parça getir / doğrulama seti (Gün 12-13)
   python main.py ask "soru"  Tek soru sor, ayrıntılı RAG cevabı al (Hafta 3)
   python main.py chat        Etkileşimli soru-cevap döngüsü (Hafta 3)
+  python main.py eval        Eval setini koştur, metrikleri raporla (Hafta 4)
 """
 
 import argparse
@@ -33,6 +34,8 @@ def main() -> None:
     p_ask = sub.add_parser("ask", help="Tek soru sor (RAG cevabı)")
     p_ask.add_argument("question", help="Sorulacak soru")
     sub.add_parser("chat", help="Etkileşimli soru-cevap döngüsü")
+    p_eval = sub.add_parser("eval", help="Eval setini koştur, metrikleri raporla")
+    p_eval.add_argument("--variant", default="v1-baseline", help="Sonuç dosyası etiketi")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -68,6 +71,9 @@ def main() -> None:
     elif args.command == "chat":
         from src.rag import run_chat
         run_chat()
+    elif args.command == "eval":
+        from src.evaluate import run
+        run(args.variant)
 
 
 if __name__ == "__main__":
