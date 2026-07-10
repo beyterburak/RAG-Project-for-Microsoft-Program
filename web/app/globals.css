@@ -143,16 +143,16 @@ body::before {
   box-shadow: inset 0 0 0 1px var(--stamp);
 }
 .usul-radio .kutu {
-  width: 0.75rem; height: 0.75rem;
+  width: 0.78rem; height: 0.78rem;
   border: 1.5px solid currentColor;
-  display: inline-block;
-  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 .usul-radio[data-checked="true"] .kutu::after {
   content: "✕";
-  position: absolute; inset: -4px 0 0 0;
-  font-size: 0.8rem; line-height: 1;
-  text-align: center;
+  font-size: 0.6rem;
+  line-height: 1;
 }
 
 /* ---------- damga-buton ---------- */
