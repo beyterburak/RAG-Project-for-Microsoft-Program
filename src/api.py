@@ -15,11 +15,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 import config
 from src.corrective import CorrectiveAnswer, CorrectiveSession
 from src.rag import Answer, RagSession
+from src.streaming import stream_events
 
 _state: dict = {}
 
@@ -93,6 +95,25 @@ def ask(req: AskRequest) -> dict:
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     return _serialize(result, req.variant)
+
+
+@app.post("/api/ask/stream")
+def ask_stream(req: AskRequest) -> StreamingResponse:
+    session: CorrectiveSession = _state["session"]
+    question = req.question.strip()
+
+    def gen():
+        try:
+            for event in stream_events(session, question, req.variant):
+                yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+        except ValueError as e:
+            yield f"data: {json.dumps({'type': 'error', 'detail': str(e)}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache"},
+    )
 
 
 @app.get("/api/results")

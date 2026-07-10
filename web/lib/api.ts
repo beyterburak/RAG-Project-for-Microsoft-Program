@@ -42,6 +42,54 @@ export async function ask(question: string, variant: Variant): Promise<AskResult
   return res.json();
 }
 
+export type StreamEvent =
+  | { type: "graded"; attempt: number; kept: number; out: number }
+  | { type: "rewritten"; query: string }
+  | { type: "chunks"; chunks: Chunk[]; seconds: number }
+  | { type: "token"; text: string }
+  | { type: "verifying" }
+  | { type: "revoked" }
+  | {
+      type: "done";
+      answer: string;
+      is_refusal: boolean;
+      revoked: boolean;
+      rewritten_query: string | null;
+      retrieval_seconds: number;
+      llm_seconds: number;
+    }
+  | { type: "error"; detail: string };
+
+/** SSE akışını tüketir; her olay için onEvent çağrılır. */
+export async function askStream(
+  question: string,
+  variant: Variant,
+  onEvent: (ev: StreamEvent) => void
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/ask/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, variant }),
+  });
+  if (!res.ok || !res.body) throw new Error(`API hatası (${res.status})`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let sep;
+    while ((sep = buffer.indexOf("\n\n")) >= 0) {
+      const frame = buffer.slice(0, sep);
+      buffer = buffer.slice(sep + 2);
+      const dataLine = frame.split("\n").find((l) => l.startsWith("data: "));
+      if (dataLine) onEvent(JSON.parse(dataLine.slice(6)) as StreamEvent);
+    }
+  }
+}
+
 export async function health(): Promise<{ status: string; chat_model: string } | null> {
   try {
     const res = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
