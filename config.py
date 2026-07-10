@@ -30,3 +30,8 @@ CHUNK_SIZE = 800        # karakter cinsinden hedef parça boyutu (~1-3 paragraf)
 CHUNK_OVERLAP = 150     # ardışık parçalar arası örtüşme (karakter)
 TOP_K = 4               # geri getirilecek parça sayısı
 EMBED_BATCH_SIZE = 16   # tek istekte embed edilecek parça sayısı
+
+# --- Corrective RAG (v2, Hafta 5) ---
+MAX_CORRECTIVE_RETRIES = 1  # sorgu yeniden yazma üst sınırı (sonsuz döngü freni)
+WIDE_K = 8                  # corrective ilk getirme havuzu (grader süzer)
+MAX_CONTEXT_CHUNKS = 4      # üretime giden en fazla ilgili parça

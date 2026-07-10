@@ -19,6 +19,7 @@ from datetime import date
 from pathlib import Path
 
 import config
+from src.corrective import CorrectiveSession
 from src.rag import RagSession
 
 EVAL_SET_PATH = config.EVAL_DIR / "eval_set.json"
@@ -107,12 +108,13 @@ def _write_markdown(path: Path, variant: str, summary: dict, rows: list[dict]) -
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def run(variant: str = "v1-baseline") -> None:
+def run(variant: str = "v1-baseline", corrective: bool = False) -> None:
     questions = json.loads(EVAL_SET_PATH.read_text(encoding="utf-8"))["questions"]
     RESULTS_DIR.mkdir(exist_ok=True)
 
-    print(f"Eval başlıyor: {len(questions)} soru, varyant: {variant}\n")
-    session = RagSession()
+    pipeline = "corrective (v2)" if corrective else "baseline (v1)"
+    print(f"Eval başlıyor: {len(questions)} soru, varyant: {variant}, hat: {pipeline}\n")
+    session = CorrectiveSession() if corrective else RagSession()
     rows = []
     try:
         for q in questions:

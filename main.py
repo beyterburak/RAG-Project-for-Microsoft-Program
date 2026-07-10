@@ -33,9 +33,11 @@ def main() -> None:
     p_retrieve.add_argument("query", nargs="?", default=None, help="Sorgu (boşsa doğrulama seti koşulur)")
     p_ask = sub.add_parser("ask", help="Tek soru sor (RAG cevabı)")
     p_ask.add_argument("question", help="Sorulacak soru")
+    p_ask.add_argument("--corrective", action="store_true", help="v2 corrective hattı kullan")
     sub.add_parser("chat", help="Etkileşimli soru-cevap döngüsü")
     p_eval = sub.add_parser("eval", help="Eval setini koştur, metrikleri raporla")
     p_eval.add_argument("--variant", default="v1-baseline", help="Sonuç dosyası etiketi")
+    p_eval.add_argument("--corrective", action="store_true", help="v2 corrective hattı kullan")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -66,14 +68,29 @@ def main() -> None:
         from src.retrieval import run
         run(args.query)
     elif args.command == "ask":
-        from src.rag import run_ask
-        run_ask(args.question)
+        if args.corrective:
+            from src.corrective import CorrectiveSession
+            from src.rag import _print_answer
+            session = CorrectiveSession()
+            try:
+                result = session.answer_query(args.question)
+                print(f"\nSoru: {args.question}")
+                if result.rewritten_query:
+                    print(f"  (yeniden yazılan sorgu: {result.rewritten_query})")
+                print(f"  (deneme: {result.attempts}, elenen parça: {result.graded_out}"
+                      f"{', grader reti' if result.forced_refusal else ''})")
+                _print_answer(result)
+            finally:
+                session.close()
+        else:
+            from src.rag import run_ask
+            run_ask(args.question)
     elif args.command == "chat":
         from src.rag import run_chat
         run_chat()
     elif args.command == "eval":
         from src.evaluate import run
-        run(args.variant)
+        run(args.variant, corrective=args.corrective)
 
 
 if __name__ == "__main__":
