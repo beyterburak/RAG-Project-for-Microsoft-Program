@@ -30,13 +30,37 @@ pip install -r requirements.txt
 ## Kullanım
 
 ```bash
+# Asıl kullanım
+python main.py ingest                     # data/ altındaki belgeleri işle → rag.db
+python main.py chat                       # etkileşimli soru-cevap (baseline)
+python main.py ask "soru"                 # tek soru (baseline v1)
+python main.py ask "soru" --corrective    # tek soru (corrective v2)
+python main.py eval                       # 26 soruluk eval seti → v1 metrikleri
+python main.py eval --variant v2-corrective --corrective  # v2 metrikleri
+
+# Yardımcı / tanılama
 python main.py catalog           # kataloğu listele, config.py alias'larını doğrula
 python main.py hello             # kurulum testi: yerel modelden ilk çıkarım
+python main.py retrieve [soru]   # top-K parça getir / retrieval doğrulama seti
 python main.py embed-demo        # embedding + kosinüs benzerlik demosu
 python main.py db-demo           # SQLite şema + serileştirme testi
 python main.py prompt-demo       # prompt şablonu davranış gözlemi
-python main.py integration-test  # Hafta 1 uçtan uca zincir testi
+python main.py integration-test  # uçtan uca zincir testi
+python main.py chunk-demo        # belge parçalama istatistikleri
 ```
+
+## Sonuçlar (v1 vs v2)
+
+Aynı 26 soruluk etiketli set üzerinde ([ayrıntılı rapor](eval/results/benchmark_v1_vs_v2.md)):
+
+| Metrik | v1-baseline | v2-corrective |
+|---|---|---|
+| Genel doğruluk | %73.1 | **%80.8** |
+| Cevap doğruluğu (cevaplanabilir) | %80 | %85 |
+| Ret doğruluğu (cevaplanamaz) | %50 | %66.7 |
+| Medyan toplam süre | 8.9 sn | 24.7 sn |
+
+v2 (CRAG deseni: geniş getirme → grader → sorgu yeniden yazımı → topraklama kontrolü) doğruluğu +7.7 puan artırır; bedeli ~2.8× gecikmedir. Bilinen sınırlamalar ve tasarım kararları için rapora bakınız.
 
 İlk çalıştırmada SDK, donanıma uygun execution provider'ları ve modeli indirir (birkaç dakika sürebilir).
 
@@ -44,18 +68,24 @@ python main.py integration-test  # Hafta 1 uçtan uca zincir testi
 
 ```
 main.py              # giriş noktası (CLI komutları)
-config.py            # model alias'ları + RAG parametreleri
+config.py            # model alias'ları + RAG/corrective parametreleri
 src/
-  foundry.py         # Foundry Local SDK ortak yardımcıları
+  foundry.py         # Foundry Local SDK ortak yardımcıları (EP kaydı, model yükleme)
+  similarity.py      # embedding üretimi + kosinüs benzerliği
+  chunking.py        # başlık/paragraf saygılı parametrik belge parçalama
+  db.py              # SQLite şeması + float32 blob serileştirme (idempotent)
+  ingest.py          # belgeler → parça → toplu embedding → rag.db
+  retrieval.py       # get_top_chunks: sorgu embed → kosinüs top-K
+  prompts.py         # Q&A prompt şablonu (REFUSAL, kaynak gösterimi)
+  rag.py             # v1: RagSession + answer_query + ask/chat CLI
+  corrective.py      # v2: grader + sorgu yeniden yazımı + topraklama kontrolü
+  evaluate.py        # eval harness: recall@K, doğruluk, gecikme → eval/results/
   hello_model.py     # kurulum doğrulama testi
   check_catalog.py   # katalog listeleme + alias doğrulama
-  similarity.py      # embedding üretimi + kosinüs benzerliği + find_relevant
-  db.py              # SQLite şeması + embedding serileştirme
-  prompts.py         # Q&A prompt şablonu (REFUSAL, kaynak gösterimi)
   prompt_demo.py     # bağlamlı/bağlamsız davranış gözlemi
-  integration_test.py# Hafta 1 uçtan uca zincir testi
-data/                # bilgi tabanı belgeleri (Hafta 2)
-eval/                # değerlendirme seti ve sonuçlar (Hafta 4)
+  integration_test.py# uçtan uca zincir testi
+data/                # bilgi tabanı belgeleri (6 belge: 3 kurgusal + 3 ders notu)
+eval/                # eval_set.json + results/ (v1, v2, karşılaştırma raporu)
 notebooks/           # deneyler
 ```
 
