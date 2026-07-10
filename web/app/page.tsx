@@ -60,13 +60,13 @@ export default function DanismaMasasi() {
       <header className="letterhead pt-8 pb-4 flex items-end justify-between gap-6">
         <div>
           <p className="font-mono text-[0.62rem] tracking-[0.3em] text-muted mb-1">
-            KAYIT BÜROSU · BELGE DANIŞMA SERVİSİ
+            YEREL BELGE ARŞİVİ · SORU-CEVAP
           </p>
           <h1 className="h-display text-3xl sm:text-4xl font-bold">
             Yerel RAG Arşivi
           </h1>
           <p className="italic text-ink-soft text-sm mt-1">
-            Cevaplar yalnız arşivdeki belgelere dayanır; her tutanak kaynağıyla mühürlenir.
+            Sorularınızı yalnızca arşivdeki belgelere dayanarak, kaynak göstererek yanıtlar — internet olmadan.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -102,32 +102,32 @@ export default function DanismaMasasi() {
 
             <label className="block mb-6">
               <span className="font-mono text-[0.62rem] tracking-[0.2em] text-muted block mb-1.5">
-                TALEP KONUSU
+                SORUNUZ
               </span>
               <input
                 ref={inputRef}
                 className="form-input"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Arşive sormak istediğiniz soruyu yazınız…"
+                placeholder="Belgelere ne sormak istersiniz?"
                 maxLength={500}
                 disabled={pending}
               />
             </label>
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex gap-2" role="radiogroup" aria-label="İşlem usulü">
+              <div className="flex gap-2" role="radiogroup" aria-label="Cevaplama modu">
                 <button type="button" className="usul-radio" data-checked={variant === "v1"}
                   onClick={() => setVariant("v1")}>
-                  <span className="kutu" /> STANDART USUL (v1)
+                  <span className="kutu" /> STANDART (v1)
                 </button>
                 <button type="button" className="usul-radio" data-checked={variant === "v2"}
                   onClick={() => setVariant("v2")}>
-                  <span className="kutu" /> DÜZELTMELİ USUL (v2)
+                  <span className="kutu" /> DÜZELTMELİ (v2)
                 </button>
               </div>
               <button className="stamp-btn" disabled={pending || !question.trim()}>
-                {pending ? "İŞLENİYOR…" : "İŞLEME AL"}
+                {pending ? "ARANIYOR…" : "ARŞİVE SOR"}
               </button>
             </div>
           </form>
@@ -136,12 +136,12 @@ export default function DanismaMasasi() {
           {pending && (
             <div className="tutanak tutanak-ruled p-6 mt-6 belge-gelis">
               <p className="font-mono text-[0.68rem] tracking-[0.2em] text-ink-soft daktilo-bekleme">
-                TALEP İŞLEME ALINDI — ARŞİV TARANIYOR
+                ARŞİV TARANIYOR
               </p>
               <p className="text-sm text-muted italic mt-3">
                 {variant === "v2"
-                  ? "Düzeltmeli usulde fişler tek tek incelenir; işlem birkaç saniye uzun sürebilir."
-                  : "Standart usul: en yakın fişler doğrudan kâtibe iletilir."}
+                  ? "Düzeltmeli modda bulunan parçalar tek tek denetlenir — cevap birkaç saniye daha uzun sürebilir."
+                  : "En benzer belge parçaları bulunuyor ve cevap yazılıyor."}
               </p>
             </div>
           )}
@@ -167,7 +167,7 @@ export default function DanismaMasasi() {
               </div>
 
               <p className="font-mono text-[0.65rem] text-muted mb-3">
-                Talep: <span className="italic">{result.question}</span>
+                Soru: <span className="italic">{result.question}</span>
               </p>
 
               {result.is_refusal ? (
@@ -175,8 +175,8 @@ export default function DanismaMasasi() {
                   <span className="buyuk-muhur">BU BİLGİ BELGELERDE YOK</span>
                   {result.corrective?.rewritten_query && (
                     <p className="font-mono text-[0.62rem] text-muted mt-6">
-                      Düzeltme kaydı: arama &ldquo;{result.corrective.rewritten_query}&rdquo; olarak
-                      yinelendi, uygun evrak bulunamadı.
+                      Soru &ldquo;{result.corrective.rewritten_query}&rdquo; olarak yeniden
+                      aranıp denendi; yine de uygun bir kayıt bulunamadı.
                     </p>
                   )}
                 </div>
@@ -186,11 +186,11 @@ export default function DanismaMasasi() {
 
               <div className="border-t border-line mt-5 pt-3 flex flex-wrap gap-x-6 gap-y-1">
                 <span className="font-mono text-[0.62rem] text-muted">
-                  İşlem süresi: tarama {result.retrieval_seconds} sn · yazım {result.llm_seconds} sn
+                  Süre: arama {result.retrieval_seconds} sn · cevap {result.llm_seconds} sn
                 </span>
                 {result.corrective && result.corrective.graded_out > 0 && (
                   <span className="font-mono text-[0.62rem] text-muted">
-                    {result.corrective.graded_out} fiş incelemede elendi
+                    {result.corrective.graded_out} parça ilgisiz bulunup elendi
                   </span>
                 )}
               </div>
@@ -199,7 +199,7 @@ export default function DanismaMasasi() {
 
           {!result && !pending && !error && (
             <div className="mt-10 text-center text-muted italic text-sm">
-              <p>Arşiv hazır. Talebinizi yazıp <span className="font-mono not-italic text-[0.7rem]">İŞLEME AL</span> mührüne basınız.</p>
+              <p>Arşiv hazır — sorunuzu yazın, gerisini raflar halleder.</p>
             </div>
           )}
         </section>
@@ -207,12 +207,12 @@ export default function DanismaMasasi() {
         {/* ===== Sağ: işlem tutanağı ===== */}
         <aside className="lg:sticky lg:top-6">
           <h2 className="font-mono text-[0.68rem] tracking-[0.25em] text-ink-soft font-semibold mb-3">
-            İŞLEM TUTANAĞI
+            İŞLEM KAYDI
           </h2>
 
           {!result && (
             <p className="text-sm text-muted italic border-l-2 border-line pl-3">
-              İşlem yapıldığında taranan fişler ve aşama kayıtları burada dosyalanır.
+              Bir soru sorduğunuzda, taranan belge parçaları ve işlem adımları burada görünür.
             </p>
           )}
 
@@ -224,18 +224,18 @@ export default function DanismaMasasi() {
               </div>
               {result.corrective && (
                 <div className="islem-satiri">
-                  <span>Fiş incelemesi ({result.corrective.graded_out} elendi)</span>
-                  <span className="dolgu" /><span>usul gereği</span>
+                  <span>Parça denetimi</span>
+                  <span className="dolgu" /><span>{result.corrective.graded_out} elendi</span>
                 </div>
               )}
               {result.corrective?.rewritten_query && (
                 <div className="islem-satiri">
-                  <span>Düzeltme kaydı düşüldü</span><span className="dolgu" />
+                  <span>Soru yeniden yazıldı</span><span className="dolgu" />
                   <span>{result.corrective.attempts}. deneme</span>
                 </div>
               )}
               <div className="islem-satiri">
-                <span>{result.is_refusal ? "Ret mührü basıldı" : "Tutanak yazıldı"}</span>
+                <span>{result.is_refusal ? "Cevap bulunamadı — ret" : "Cevap yazıldı"}</span>
                 <span className="dolgu" /><span>{result.llm_seconds} sn</span>
               </div>
             </div>
@@ -248,7 +248,7 @@ export default function DanismaMasasi() {
                   style={{ animationDelay: `${i * 90}ms` }}>
                   <div className="flex justify-between items-start gap-2 mb-2">
                     <span className="font-mono text-[0.62rem] font-semibold text-ink-soft break-all">
-                      {c.source} <span className="text-muted">/ fiş {c.chunk_index}</span>
+                      {c.source} <span className="text-muted">/ parça {c.chunk_index}</span>
                     </span>
                     {result.variant === "v2" && (
                       <span className="stamp-mark stamp-kabul">KABUL</span>

@@ -7,11 +7,11 @@ export default function TeftisRaporu() {
       <header className="letterhead pt-8 pb-4 flex items-end justify-between gap-6">
         <div>
           <p className="font-mono text-[0.62rem] tracking-[0.3em] text-muted mb-1">
-            KAYIT BÜROSU · DENETİM SERVİSİ
+            YEREL BELGE ARŞİVİ · KARŞILAŞTIRMA
           </p>
           <h1 className="h-display text-3xl sm:text-4xl font-bold">Teftiş Raporu</h1>
           <p className="italic text-ink-soft text-sm mt-1">
-            Standart usul (v1) ile düzeltmeli usulün (v2) karşılaştırmalı denetimi.
+            Standart (v1) ve düzeltmeli (v2) modların aynı soru setiyle ölçülmüş karşılaştırması.
           </p>
         </div>
         <ThemeToggle />
@@ -23,7 +23,7 @@ export default function TeftisRaporu() {
       </nav>
 
       <main className="mt-10 text-center text-muted italic">
-        <p>Teftiş dosyası hazırlanıyor — bu sekme Faz 4&apos;te doldurulacak.</p>
+        <p>Bu sayfa yakında hazır — v1 ile v2&apos;nin ölçüm sonuçları burada karşılaştırılacak.</p>
       </main>
     </div>
   );
