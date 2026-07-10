@@ -9,9 +9,11 @@ from pathlib import Path
 # --- Foundry Local ---
 APP_NAME = "rag-microsoft"
 
-# Sohbet (generation) modeli — küçük ve hızlı; Hafta 3'te gerekirse büyütülür.
-CHAT_MODEL_ALIAS = "phi-3.5-mini"
-# Katalogda phi-3.5-mini yoksa catalog komutunun önerdigi alias ile degistir.
+# Sohbet (generation) modeli — Hafta 3 karşılaştırmasıyla seçildi:
+# phi-3.5-mini Türkçe çok-parçalı sentezde olguları karıştırıyor;
+# qwen3.5-4b 8GB VRAM'e (RTX 3060 Ti) embedding modeliyle birlikte sığmıyor;
+# qwen3.5-2b düzgün Türkçe + doğru kaynak gösterimi + kabul edilebilir hız.
+CHAT_MODEL_ALIAS = "qwen3.5-2b"
 CHAT_MODEL_FALLBACK = "qwen2.5-0.5b"
 
 # Embedding modeli — Foundry Local 1.1+ kataloğunda resmi alias.

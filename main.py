@@ -10,6 +10,8 @@ Komutlar:
   python main.py chunk-demo  Belge parçalama istatistikleri (Hafta 2, Gün 8-9)
   python main.py ingest      Belgeleri embed edip rag.db'ye yaz (Gün 10-11)
   python main.py retrieve [soru]  Top-K parça getir / doğrulama seti (Gün 12-13)
+  python main.py ask "soru"  Tek soru sor, ayrıntılı RAG cevabı al (Hafta 3)
+  python main.py chat        Etkileşimli soru-cevap döngüsü (Hafta 3)
 """
 
 import argparse
@@ -28,6 +30,9 @@ def main() -> None:
     sub.add_parser("ingest", help="Belgeleri embed edip rag.db'ye yaz")
     p_retrieve = sub.add_parser("retrieve", help="Top-K parça getir / doğrulama seti")
     p_retrieve.add_argument("query", nargs="?", default=None, help="Sorgu (boşsa doğrulama seti koşulur)")
+    p_ask = sub.add_parser("ask", help="Tek soru sor (RAG cevabı)")
+    p_ask.add_argument("question", help="Sorulacak soru")
+    sub.add_parser("chat", help="Etkileşimli soru-cevap döngüsü")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -57,6 +62,12 @@ def main() -> None:
     elif args.command == "retrieve":
         from src.retrieval import run
         run(args.query)
+    elif args.command == "ask":
+        from src.rag import run_ask
+        run_ask(args.question)
+    elif args.command == "chat":
+        from src.rag import run_chat
+        run_chat()
 
 
 if __name__ == "__main__":

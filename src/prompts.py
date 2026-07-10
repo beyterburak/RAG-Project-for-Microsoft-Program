@@ -19,8 +19,8 @@ SYSTEM_PROMPT = f"""You are a document-grounded question answering assistant.
 
 Rules:
 1. Answer ONLY using the information in the CONTEXT below.
-2. If the answer is not in the context, do not guess and do not cite any source; reply exactly: "{REFUSAL}"
-3. Only when you answered from the context, end your answer with the source in this format: (Kaynak: file_name)
+2. If the answer is not in the context, do not guess, do not explain, do not cite any source; your ENTIRE reply must be exactly this sentence and nothing else: "{REFUSAL}"
+3. Only when you answered from the context, end your answer with the source document's file name, copied exactly from the [KAYNAK: ...] tag of the passage you used, in this format: (Kaynak: dosya.md)
 4. Always answer in the same language as the question. Be brief."""
 
 CONTEXT_TEMPLATE = """CONTEXT:

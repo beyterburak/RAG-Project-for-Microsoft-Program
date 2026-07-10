@@ -8,7 +8,7 @@ Microsoft Foundry Local ile tamamen çevrimdışı çalışan belge tabanlı sor
 
 Kullanıcı sorusu → SQLite vektör veritabanında benzerlik araması → getirilen parçalar + soru → Foundry Local LLM → kaynağa dayalı cevap. Tüm akış internetsiz, tek cihazda.
 
-- **Sohbet modeli:** `phi-3.5-mini` (bkz. `config.py`)
+- **Sohbet modeli:** `qwen3.5-2b` (Hafta 3'te phi-3.5-mini'den geçildi: Türkçe çok-parçalı sentez kalitesi; 4b sınıfı 8 GB VRAM'e sığmıyor — bkz. `config.py`)
 - **Embedding modeli:** `qwen3-embedding-0.6b`
 - **Vektör deposu:** SQLite (brute-force kosinüs benzerliği)
 
