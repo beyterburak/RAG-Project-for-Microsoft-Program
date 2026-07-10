@@ -2,7 +2,8 @@
 
 Strateji: markdown başlık/paragraf sınırlarına saygılı, parametrik parçalama.
 - Paragraflar asla ortadan bölünmez (tek paragraf chunk_size'ı aşmadıkça).
-- Her parçanın başına ait olduğu bölüm başlığı eklenir (retrieval'da bağlam).
+- Her parçanın başına "Belge Başlığı — Bölüm" bağlam satırı eklenir; belge
+  başlığı olmadan bölüm parçaları konudan (örn. ürün adından) kopuyordu.
 - Ardışık parçalar arasında örtüşme: önceki parçanın son paragrafı,
   overlap sınırına sığıyorsa yeni parçanın başında tekrarlanır.
 
@@ -31,9 +32,10 @@ def _split_blocks(text: str) -> list[str]:
 def _hard_split(paragraph: str, chunk_size: int, overlap: int) -> list[str]:
     """chunk_size'dan uzun tek paragrafı karakter bazında böler."""
     pieces, start = [], 0
+    step = max(1, chunk_size - overlap)  # overlap >= chunk_size'da sonsuz döngü koruması
     while start < len(paragraph):
         pieces.append(paragraph[start:start + chunk_size])
-        start += chunk_size - overlap
+        start += step
     return pieces
 
 
@@ -41,6 +43,7 @@ def chunk_document(text: str, source: str,
                    chunk_size: int = config.CHUNK_SIZE,
                    overlap: int = config.CHUNK_OVERLAP) -> list[tuple[str, int, str]]:
     """Bir belgeyi (source, chunk_index, chunk_text) listesine parçalar."""
+    doc_title = ""
     heading = ""
     chunks: list[str] = []
     buffer: list[str] = []          # mevcut parçanın paragrafları
@@ -56,7 +59,12 @@ def chunk_document(text: str, source: str,
     for block in _split_blocks(text):
         if block.lstrip().startswith("#"):
             emit()
-            heading = block.strip("# ").strip()
+            section = block.strip("# ").strip()
+            if not doc_title:
+                doc_title = section
+                heading = doc_title
+            else:
+                heading = f"{doc_title} — {section}"
             buffer_heading = heading
             continue
 
