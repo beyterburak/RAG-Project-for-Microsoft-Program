@@ -13,6 +13,7 @@ Komutlar:
   python main.py ask "soru"  Tek soru sor, ayrıntılı RAG cevabı al (Hafta 3)
   python main.py chat        Etkileşimli soru-cevap döngüsü (Hafta 3)
   python main.py eval        Eval setini koştur, metrikleri raporla (Hafta 4)
+  python main.py serve       Web arayüzü API'sini başlat (127.0.0.1:8000)
 """
 
 import argparse
@@ -38,6 +39,7 @@ def main() -> None:
     p_eval = sub.add_parser("eval", help="Eval setini koştur, metrikleri raporla")
     p_eval.add_argument("--variant", default="v1-baseline", help="Sonuç dosyası etiketi")
     p_eval.add_argument("--corrective", action="store_true", help="v2 corrective hattı kullan")
+    sub.add_parser("serve", help="Web arayüzü API'sini başlat")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -91,6 +93,9 @@ def main() -> None:
     elif args.command == "eval":
         from src.evaluate import run
         run(args.variant, corrective=args.corrective)
+    elif args.command == "serve":
+        import uvicorn
+        uvicorn.run("src.api:app", host="127.0.0.1", port=8000)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,107 @@
+"""FastAPI katmanı — web arayüzünün (web/) yerel backend'i.
+
+Tasarım kararları:
+- Tek CorrectiveSession açılır ve SICAK tutulur: model bir kez yüklenir,
+  v1 istekleri aynı oturum üzerinden RagSession.answer_query ile (miras
+  alınan baseline davranış), v2 istekleri override edilmiş corrective
+  akışla cevaplanır. Etiketli v1/v2 davranışına dokunulmaz.
+- Tamamen yerel: yalnız 127.0.0.1'e bağlanır, CORS yalnız localhost:3000.
+
+Kullanım: python main.py serve  →  http://127.0.0.1:8000/docs
+"""
+
+import json
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+import config
+from src.corrective import CorrectiveAnswer, CorrectiveSession
+from src.rag import Answer, RagSession
+
+_state: dict = {}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Modeller yükleniyor (ilk istekten önce ısınma)...")
+    _state["session"] = CorrectiveSession()
+    print("Hazır: http://127.0.0.1:8000")
+    yield
+    _state["session"].close()
+
+
+app = FastAPI(title="Yerel RAG Arşivi", version="0.1", lifespan=lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=500)
+    variant: str = Field(default="v1", pattern="^(v1|v2)$")
+
+
+def _serialize(result: Answer, variant: str) -> dict:
+    payload = {
+        "variant": variant,
+        "question": result.question,
+        "answer": result.answer,
+        "is_refusal": result.is_refusal,
+        "chunks": [
+            {"source": c.source, "chunk_index": c.chunk_index,
+             "score": round(c.score, 4), "text": c.text}
+            for c in result.chunks
+        ],
+        "retrieval_seconds": round(result.retrieval_seconds, 2),
+        "llm_seconds": round(result.llm_seconds, 2),
+    }
+    if isinstance(result, CorrectiveAnswer):
+        payload["corrective"] = {
+            "attempts": result.attempts,
+            "graded_out": result.graded_out,
+            "rewritten_query": result.rewritten_query,
+            "forced_refusal": result.forced_refusal,
+        }
+    return payload
+
+
+@app.get("/api/health")
+def health() -> dict:
+    return {
+        "status": "ok",
+        "chat_model": config.CHAT_MODEL_ALIAS,
+        "embedding_model": config.EMBEDDING_MODEL_ALIAS,
+        "warm": "session" in _state,
+    }
+
+
+@app.post("/api/ask")
+def ask(req: AskRequest) -> dict:
+    session: CorrectiveSession = _state["session"]
+    question = req.question.strip()
+    try:
+        if req.variant == "v2":
+            result = session.answer_query(question)
+        else:
+            result = RagSession.answer_query(session, question)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return _serialize(result, req.variant)
+
+
+@app.get("/api/results")
+def results() -> dict:
+    out = {}
+    for variant in ("v1-baseline", "v2-corrective"):
+        path = config.EVAL_DIR / "results" / f"{variant}.json"
+        if path.exists():
+            out[variant] = json.loads(path.read_text(encoding="utf-8"))
+    if not out:
+        raise HTTPException(status_code=404, detail="Eval sonucu bulunamadı.")
+    return out
