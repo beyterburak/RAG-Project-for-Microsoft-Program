@@ -1,26 +1,310 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   YEREL ARŞİV — tasarım dili
+   Gündüz Arşivi (açık) / Gece Nöbeti (koyu)
+   ============================================================ */
+
+:root,
+:root[data-theme="gunduz"] {
+  --paper: #f2ecdd;        /* masa üstü zemin */
+  --card: #faf6ea;         /* evrak kâğıdı */
+  --card-aged: #f5efdc;
+  --ink: #262019;          /* mürekkep */
+  --ink-soft: #55493a;
+  --muted: #87795f;
+  --line: #cfc3a8;         /* cetvel çizgisi */
+  --line-strong: #a6997c;
+  --stamp: #a23a2b;        /* arşiv kırmızısı */
+  --stamp-soft: rgba(162, 58, 43, 0.08);
+  --seal-green: #3f6b4e;   /* kabul yeşili */
+  --tab: #c9a24a;          /* dosya sarısı */
+  --shadow: rgba(70, 55, 30, 0.18);
+}
+
+:root[data-theme="gece"] {
+  --paper: #171410;
+  --card: #201c15;
+  --card-aged: #262117;
+  --ink: #e9dfc9;
+  --ink-soft: #c4b797;
+  --muted: #91836a;
+  --line: #3c3529;
+  --line-strong: #574d3a;
+  --stamp: #c65445;
+  --stamp-soft: rgba(198, 84, 69, 0.12);
+  --seal-green: #74a383;
+  --tab: #d3ab55;
+  --shadow: rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-card-aged: var(--card-aged);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-stamp: var(--stamp);
+  --color-seal: var(--seal-green);
+  --color-tab: var(--tab);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), Georgia, serif;
+  transition: background 0.25s ease, color 0.25s ease;
 }
+
+/* kâğıt dokusu: harici varlık yok, saf SVG gürültüsü */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- antetli başlık ---------- */
+.letterhead {
+  border-bottom: 3px double var(--line-strong);
+}
+
+.h-display {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- dosya sekmeleri ---------- */
+.file-tab {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  padding: 0.45rem 1.1rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: var(--card-aged);
+  color: var(--ink-soft);
+  position: relative;
+  top: 1px;
+  transition: background 0.15s ease;
+}
+.file-tab[data-active="true"] {
+  background: var(--card);
+  color: var(--ink);
+  border-top: 3px solid var(--tab);
+  font-weight: 600;
+}
+.file-tab:hover { background: var(--card); }
+
+/* ---------- resmî form ---------- */
+.form-input {
+  font-family: var(--font-body), serif;
+  font-size: 1.05rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px dashed var(--line-strong);
+  padding: 0.35rem 0.2rem;
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+}
+.form-input:focus { border-bottom-color: var(--stamp); border-bottom-style: solid; }
+.form-input::placeholder { color: var(--muted); font-style: italic; }
+
+.usul-radio {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  color: var(--ink-soft);
+  background: var(--card-aged);
+  user-select: none;
+  transition: all 0.15s ease;
+}
+.usul-radio[data-checked="true"] {
+  border-color: var(--stamp);
+  color: var(--stamp);
+  background: var(--stamp-soft);
+  box-shadow: inset 0 0 0 1px var(--stamp);
+}
+.usul-radio .kutu {
+  width: 0.75rem; height: 0.75rem;
+  border: 1.5px solid currentColor;
+  display: inline-block;
+  position: relative;
+}
+.usul-radio[data-checked="true"] .kutu::after {
+  content: "✕";
+  position: absolute; inset: -4px 0 0 0;
+  font-size: 0.8rem; line-height: 1;
+  text-align: center;
+}
+
+/* ---------- damga-buton ---------- */
+.stamp-btn {
+  font-family: var(--font-mono), monospace;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--stamp);
+  border: 2.5px solid var(--stamp);
+  border-radius: 4px;
+  padding: 0.55rem 1.4rem;
+  background: transparent;
+  cursor: pointer;
+  transform: rotate(-1.5deg);
+  transition: all 0.12s ease;
+  box-shadow: 2px 3px 0 var(--shadow);
+}
+.stamp-btn:hover:not(:disabled) { background: var(--stamp-soft); transform: rotate(-1.5deg) translateY(-1px); }
+.stamp-btn:active:not(:disabled) { transform: rotate(-0.5deg) translateY(2px) scale(0.97); box-shadow: 0 1px 0 var(--shadow); }
+.stamp-btn:disabled { opacity: 0.45; cursor: wait; }
+
+/* ---------- tutanak kartı ---------- */
+.tutanak {
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  box-shadow: 4px 6px 0 var(--shadow), 0 0 0 1px var(--paper), 6px 8px 0 1px var(--line);
+  position: relative;
+}
+.tutanak-ruled {
+  background-image: repeating-linear-gradient(
+    transparent, transparent 1.85rem, var(--line) 1.85rem, var(--line) calc(1.85rem + 1px)
+  );
+}
+
+/* ---------- katalog fişi ---------- */
+.fis {
+  background: var(--card-aged);
+  border: 1px solid var(--line-strong);
+  position: relative;
+  box-shadow: 2px 3px 0 var(--shadow);
+}
+/* delikli üst kenar */
+.fis::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: 8%; right: 8%;
+  height: 8px;
+  background-image: radial-gradient(circle at 4px 0px, var(--paper) 3px, transparent 3.5px);
+  background-size: 14px 8px;
+  background-repeat: repeat-x;
+}
+
+/* ---------- damgalar ---------- */
+.stamp-mark {
+  font-family: var(--font-mono), monospace;
+  font-weight: 600;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  padding: 0.15rem 0.5rem;
+  display: inline-block;
+  transform: rotate(-4deg);
+  opacity: 0.9;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.85 0.15'/%3E%3C/filter%3E%3Crect width='120' height='40' fill='white' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+.stamp-kabul { color: var(--seal-green); }
+.stamp-ret { color: var(--stamp); }
+
+/* büyük ret mührü */
+.buyuk-muhur {
+  font-family: var(--font-mono), monospace;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 2.2vw, 1.3rem);
+  letter-spacing: 0.3em;
+  color: var(--stamp);
+  border: 4px double var(--stamp);
+  border-radius: 6px;
+  padding: 0.7rem 1.6rem;
+  transform: rotate(-8deg);
+  opacity: 0;
+  animation: muhur-bas 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='80'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.8 0.2'/%3E%3C/filter%3E%3Crect width='300' height='80' fill='white' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+@keyframes muhur-bas {
+  from { opacity: 0; transform: rotate(-8deg) scale(1.6); }
+  to   { opacity: 0.92; transform: rotate(-8deg) scale(1); }
+}
+
+/* yuvarlak çevrimdışı mühür */
+.yuvarlak-muhur {
+  width: 5.2rem; height: 5.2rem;
+  border: 2px solid var(--stamp);
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  transform: rotate(8deg);
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+.yuvarlak-muhur::before {
+  content: "";
+  position: absolute; inset: 5px;
+  border: 1px solid var(--stamp);
+  border-radius: 9999px;
+}
+.yuvarlak-muhur span {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--stamp);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ---------- işlem satırı ---------- */
+.islem-satiri {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+.islem-satiri::before {
+  content: "▸";
+  color: var(--tab);
+}
+.islem-satiri .dolgu {
+  flex: 1;
+  border-bottom: 1px dotted var(--line-strong);
+  transform: translateY(-3px);
+}
+
+/* daktilo imleci */
+.daktilo-bekleme::after {
+  content: "▍";
+  animation: yanip-sonme 0.9s steps(2) infinite;
+  color: var(--stamp);
+}
+@keyframes yanip-sonme { 50% { opacity: 0; } }
+
+/* giriş animasyonu */
+.belge-gelis {
+  animation: belge-gelis 0.4s ease-out both;
+}
+@keyframes belge-gelis {
+  from { opacity: 0; transform: translateY(10px) rotate(0.3deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+::selection { background: var(--tab); color: var(--paper); }
