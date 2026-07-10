@@ -53,16 +53,21 @@ def insert_chunks(conn: sqlite3.Connection,
     conn.commit()
 
 
-def load_all(conn: sqlite3.Connection) -> tuple[list[int], list[str], np.ndarray]:
-    """Tüm parçaları döndürür: (id listesi, metin listesi, (n, d) embedding matrisi)."""
-    cur = conn.execute("SELECT id, chunk_text, embedding FROM documents ORDER BY id")
-    ids, texts, vecs = [], [], []
-    for row_id, text, blob in cur:
-        ids.append(row_id)
-        texts.append(text)
+def load_all(conn: sqlite3.Connection) -> tuple[list[tuple[int, str, int, str]], np.ndarray]:
+    """Tüm parçaları döndürür.
+
+    Dönüş: (satırlar, matris) — satırlar (id, source, chunk_index, chunk_text)
+    listesi, matris (n, d) float32 embedding'ler (satırlarla aynı sırada).
+    """
+    cur = conn.execute(
+        "SELECT id, source, chunk_index, chunk_text, embedding FROM documents ORDER BY id"
+    )
+    rows, vecs = [], []
+    for row_id, source, chunk_index, text, blob in cur:
+        rows.append((row_id, source, chunk_index, text))
         vecs.append(deserialize(blob))
     matrix = np.stack(vecs) if vecs else np.empty((0, 0), dtype=np.float32)
-    return ids, texts, matrix
+    return rows, matrix
 
 
 def run() -> None:
@@ -81,7 +86,8 @@ def run() -> None:
     print(f"Eklenen kayıt: {count} (beklenen 3)")
 
     # Serileştirme gidiş-dönüşü bit düzeyinde kayıpsız mı?
-    _, texts, matrix = load_all(conn)
+    rows, matrix = load_all(conn)
+    texts = [text for _, _, _, text in rows]
     original = np.stack([e for _, _, _, e in demo_rows])
     exact = bool(np.array_equal(matrix, original))
     print(f"Embedding gidiş-dönüşü kayıpsız: {exact}")

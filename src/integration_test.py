@@ -38,7 +38,8 @@ def run() -> None:
     # 2) Retrieval minyatürü: DB'den oku + kosinüs top-K
     print("2) Sorgu embed edilip DB üzerinden top-3 getiriliyor...")
     query_vec = embed_texts([QUERY])[0]
-    _, texts, matrix = db.load_all(conn)
+    rows, matrix = db.load_all(conn)
+    texts = [text for _, _, _, text in rows]
     scores = cosine_similarity(query_vec, matrix)
     top_idx = np.argsort(scores)[::-1][:3]
     top_chunks = [("demo.md", texts[i]) for i in top_idx]

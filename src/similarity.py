@@ -32,10 +32,14 @@ def embed_texts(texts: list[str]) -> np.ndarray:
 
 
 def cosine_similarity(query_vec: np.ndarray, matrix: np.ndarray) -> np.ndarray:
-    """Sorgu vektörü ile matristeki her satır arasındaki kosinüs benzerliği."""
-    query_norm = query_vec / np.linalg.norm(query_vec)
-    matrix_norms = matrix / np.linalg.norm(matrix, axis=1, keepdims=True)
-    return matrix_norms @ query_norm
+    """Sorgu vektörü ile matristeki her satır arasındaki kosinüs benzerliği.
+
+    Sıfır vektörlere karşı epsilon koruması: 0/0 = NaN yerine skor 0 üretir.
+    """
+    eps = 1e-12
+    query_norm = query_vec / max(float(np.linalg.norm(query_vec)), eps)
+    row_norms = np.maximum(np.linalg.norm(matrix, axis=1, keepdims=True), eps)
+    return (matrix / row_norms) @ query_norm
 
 
 def find_relevant(query: str, texts: list[str], k: int = config.TOP_K) -> list[tuple[float, str]]:

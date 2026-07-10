@@ -9,6 +9,7 @@ Komutlar:
   python main.py integration-test  Hafta 1 uçtan uca entegrasyon testi (Gün 7)
   python main.py chunk-demo  Belge parçalama istatistikleri (Hafta 2, Gün 8-9)
   python main.py ingest      Belgeleri embed edip rag.db'ye yaz (Gün 10-11)
+  python main.py retrieve [soru]  Top-K parça getir / doğrulama seti (Gün 12-13)
 """
 
 import argparse
@@ -25,6 +26,8 @@ def main() -> None:
     sub.add_parser("integration-test", help="Hafta 1 uçtan uca entegrasyon testi")
     sub.add_parser("chunk-demo", help="Belge parçalama istatistikleri")
     sub.add_parser("ingest", help="Belgeleri embed edip rag.db'ye yaz")
+    p_retrieve = sub.add_parser("retrieve", help="Top-K parça getir / doğrulama seti")
+    p_retrieve.add_argument("query", nargs="?", default=None, help="Sorgu (boşsa doğrulama seti koşulur)")
     args = parser.parse_args()
 
     if args.command == "catalog":
@@ -51,6 +54,9 @@ def main() -> None:
     elif args.command == "ingest":
         from src.ingest import run
         run()
+    elif args.command == "retrieve":
+        from src.retrieval import run
+        run(args.query)
 
 
 if __name__ == "__main__":
