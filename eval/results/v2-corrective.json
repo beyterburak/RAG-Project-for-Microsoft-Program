@@ -1,0 +1,458 @@
+{
+  "variant": "v2-corrective",
+  "summary": {
+    "questions": 26,
+    "recall_at_k": 1.0,
+    "top1_rate": 0.85,
+    "answerable_accuracy": 0.85,
+    "refusal_accuracy": 0.667,
+    "overall_accuracy": 0.808,
+    "avg_llm_seconds": 10.28,
+    "median_total_seconds": 24.72,
+    "top_k": 4
+  },
+  "rows": [
+    {
+      "id": 1,
+      "type": "answerable",
+      "question": "Zyntrix X9'un pil ömrü standart modda kaç saattir?",
+      "answer": "Standart modda pil ömrü 14 saattir.\n(Kaynak: zyntrix_x9_kilavuz.md)",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_surum_notlari.md/0",
+        "zyntrix_x9_kilavuz.md/1"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 5.335,
+      "llm_seconds": 2.495,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 2,
+      "type": "answerable",
+      "question": "Zyntrix X9 kaç gram ağırlığında?",
+      "answer": "Zyntrix X9 ağırlığı 86 gram'dır.\n(Kaynak: zyntrix_x9_kilavuz.md)",
+      "retrieved": [
+        "zyntrix_sss.md/1",
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_x9_kilavuz.md/1",
+        "zyntrix_surum_notlari.md/3"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 2.309,
+      "llm_seconds": 2.741,
+      "recall_hit": true,
+      "top1_hit": false,
+      "correct": true
+    },
+    {
+      "id": 3,
+      "type": "answerable",
+      "question": "Ekranda E-07 hatası görürsem ne yapmalıyım?",
+      "answer": "Ekranda \"E-07\" hatası görürseniz, sensör ızgarası tıkalı olduğundan ve temizlik adımlarını uygulamamızı gerektirir.\n(Kaynak: zyntrix_sss.md)",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/6",
+        "zyntrix_sss.md/7"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 2.238,
+      "llm_seconds": 2.249,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 4,
+      "type": "answerable",
+      "question": "Zyntrix X9 suya dayanıklı mı?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/7",
+        "zyntrix_x9_kilavuz.md/0",
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_sss.md/1"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 2.349,
+      "llm_seconds": 2.395,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": false
+    },
+    {
+      "id": 5,
+      "type": "answerable",
+      "question": "Zyntrix X9 hangi sıcaklık aralığında çalışır?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_x9_kilavuz.md/0"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 2.349,
+      "llm_seconds": 7.358,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": false
+    },
+    {
+      "id": 6,
+      "type": "answerable",
+      "question": "Zyntrix X9'un garanti süresi ne kadar?",
+      "answer": "Zyntrix X9'ın garanti süresi satın alma tarihinden itibaren 2 yıl'dır.\n(Kaynak: zyntrix_x9_kilavuz.md)",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/7",
+        "zyntrix_sss.md/4",
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_x9_kilavuz.md/1"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 16.173,
+      "llm_seconds": 17.666,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 7,
+      "type": "answerable",
+      "question": "Zyntrix X9 USB-C ile kaç dakikada tam şarj olur?",
+      "answer": "USB-Ç ile 90 dakikada tam şarj olur.\n(Kaynak: zyntrix_x9_kilavuz.md)",
+      "retrieved": [
+        "zyntrix_sss.md/9",
+        "zyntrix_x9_kilavuz.md/2",
+        "zyntrix_x9_kilavuz.md/1",
+        "zyntrix_x9_kilavuz.md/7"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 15.519,
+      "llm_seconds": 17.717,
+      "recall_hit": true,
+      "top1_hit": false,
+      "correct": true
+    },
+    {
+      "id": 8,
+      "type": "answerable",
+      "question": "X9 ile X9 Pro arasındaki farklar nelerdir?",
+      "answer": "X9 Pro, X9'da sıcaklık/nem sensörü, IP67 su geçirmezlik ve 21 saat pil ömrü sunar.\n(Kaynak: zyntrix_sss.md)",
+      "retrieved": [
+        "zyntrix_sss.md/1",
+        "zyntrix_surum_notlari.md/0",
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_surum_notlari.md/2"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 15.079,
+      "llm_seconds": 16.794,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 9,
+      "type": "answerable",
+      "question": "Zyntrix Link uygulamasına en fazla kaç cihaz bağlanır?",
+      "answer": "Zyntrix Link uygulamasına en fazla 8 cihaz bağlanır.\n(Kaynak: zyntrix_sss.md)",
+      "retrieved": [
+        "zyntrix_sss.md/5",
+        "zyntrix_surum_notlari.md/3"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 13.34,
+      "llm_seconds": 9.186,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 10,
+      "type": "answerable",
+      "question": "CO2 kaç ppm üzerinde havalandırma yapılmalı?",
+      "answer": "CO2 değeri 1200 ppm üzeri havalandırma gerektirir.\n(Kaynak: zyntrix_sss.md)",
+      "retrieved": [
+        "zyntrix_sss.md/6",
+        "zyntrix_sss.md/0"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 14.181,
+      "llm_seconds": 9.509,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 11,
+      "type": "answerable",
+      "question": "Zyntrix X9 verilerimi USB ile bilgisayara aktarabilir miyim?",
+      "answer": "Hayır, Zyntrix X9 cihazı doğrudan USB ile veri aktarımı desteklememektedir. Veriler Zyntrix Link uygulaması üzerinden CSV formatında dışa aktarılmalıdır.\n(Kaynak: zyntrix_sss.md)",
+      "retrieved": [
+        "zyntrix_sss.md/9",
+        "zyntrix_x9_kilavuz.md/4",
+        "zyntrix_surum_notlari.md/3"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 14.101,
+      "llm_seconds": 13.144,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 12,
+      "type": "answerable",
+      "question": "Firmware 2.1 sürümünde hangi yenilikler geldi?",
+      "answer": "Firmware 2.1 sürümünde yeni eklenen özellik Eco mod (120 saniye ölçüm aralığı) ve %5 pilde cihazın donması yerine kapanması düzeltmesi ile otomatik CO2 kalibrasyon periyodu 3 aydan 1 aya indirildi.\n(Kaynak: zyntrix_surum_notlari.md)",
+      "retrieved": [
+        "zyntrix_surum_notlari.md/2",
+        "zyntrix_surum_notlari.md/3",
+        "zyntrix_surum_notlari.md/1",
+        "zyntrix_surum_notlari.md/4"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 15.179,
+      "llm_seconds": 15.243,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 13,
+      "type": "answerable",
+      "question": "Sürüm 2.3 ile Eco modda pil ömrü kaç saate çıktı?",
+      "answer": "26 saate çıktı. (Kaynak: zyntrix_surum_notlari.md)",
+      "retrieved": [
+        "zyntrix_surum_notlari.md/0",
+        "zyntrix_surum_notlari.md/2",
+        "zyntrix_sss.md/4",
+        "zyntrix_x9_kilavuz.md/2"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 16.224,
+      "llm_seconds": 16.308,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 14,
+      "type": "answerable",
+      "question": "Firmware güncellemesi için pil en az yüzde kaç dolu olmalı?",
+      "answer": "Firmware güncellemesi için pil en az %30 dolu olmalıdır.\n(Kaynak: zyntrix_sss.md)",
+      "retrieved": [
+        "zyntrix_sss.md/7",
+        "zyntrix_surum_notlari.md/3",
+        "zyntrix_surum_notlari.md/0"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 14.111,
+      "llm_seconds": 13.901,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 15,
+      "type": "answerable",
+      "question": "Perceptron modelini kim geliştirdi?",
+      "answer": "Frank Rosenblatt.\n(Kaynak: ders_yapay_sinir_aglari.md)",
+      "retrieved": [
+        "ders_veritabanlari.md/2",
+        "ders_yapay_sinir_aglari.md/6",
+        "ders_yapay_sinir_aglari.md/1"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 13.441,
+      "llm_seconds": 11.437,
+      "recall_hit": true,
+      "top1_hit": false,
+      "correct": true
+    },
+    {
+      "id": 16,
+      "type": "answerable",
+      "question": "Backpropagation yönteminde ağırlıklar nasıl güncellenir?",
+      "answer": "Backpropagation yönteminde ağırlıklar, ağın çıktısındaki hata hesaplanarak geriye doğru yayılarak güncellenir.\n(Kaynak: ders_yapay_sinir_aglari.md)",
+      "retrieved": [
+        "ders_yapay_sinir_aglari.md/3",
+        "ders_yapay_sinir_aglari.md/1",
+        "ders_yapay_sinir_aglari.md/6"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 12.83,
+      "llm_seconds": 13.312,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 17,
+      "type": "answerable",
+      "question": "İlişkisel veri modelini kim, ne zaman geliştirdi?",
+      "answer": "İlişkisel veri modeli 1970'lerde Edgar F. Codd tarafından geliştirilmiştir.\n(Kaynak: ders_veritabanlari.md)",
+      "retrieved": [
+        "ders_veritabanlari.md/2",
+        "ders_veritabanlari.md/0"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 13.122,
+      "llm_seconds": 9.099,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 18,
+      "type": "answerable",
+      "question": "NoSQL veritabanlarına hangi örnekler verilebilir?",
+      "answer": "NoSQL veritabanlarına örnekler: Redis, Couchbase, Amazon DynamoDB.\n(Kaynak: ders_veritabanlari.md)",
+      "retrieved": [
+        "ders_veritabanlari.md/4",
+        "ders_veritabanlari.md/1",
+        "ders_veritabanlari.md/3"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 14.224,
+      "llm_seconds": 11.331,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 19,
+      "type": "answerable",
+      "question": "Büyük O gösterimini ilk kim, hangi eserde kullandı?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "ders_algoritma_karmasikligi.md/1",
+        "ders_algoritma_karmasikligi.md/3"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 14.385,
+      "llm_seconds": 6.558,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": false
+    },
+    {
+      "id": 20,
+      "type": "answerable",
+      "question": "Birleştirmeli sıralamanın (merge sort) karmaşıklığı nedir?",
+      "answer": "Birleştirmeli sıralamanın (merge sort) karmaşıklığı O(n log n)'dir.\n(Kaynak: ders_algoritma_karmasikligi.md)",
+      "retrieved": [
+        "ders_algoritma_karmasikligi.md/3",
+        "ders_algoritma_karmasikligi.md/0",
+        "ders_algoritma_karmasikligi.md/5",
+        "ders_algoritma_karmasikligi.md/2"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 14.531,
+      "llm_seconds": 16.316,
+      "recall_hit": true,
+      "top1_hit": true,
+      "correct": true
+    },
+    {
+      "id": 21,
+      "type": "unanswerable",
+      "question": "Zyntrix X9'un satış fiyatı ne kadar?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "zyntrix_sss.md/1",
+        "zyntrix_x9_kilavuz.md/3"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 14.3,
+      "llm_seconds": 6.41,
+      "recall_hit": null,
+      "top1_hit": null,
+      "correct": true
+    },
+    {
+      "id": 22,
+      "type": "unanswerable",
+      "question": "Zyntrix X9 hangi renk seçenekleriyle satılıyor?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/3",
+        "zyntrix_x9_kilavuz.md/0"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 15.111,
+      "llm_seconds": 6.565,
+      "recall_hit": null,
+      "top1_hit": null,
+      "correct": true
+    },
+    {
+      "id": 23,
+      "type": "unanswerable",
+      "question": "Zyntrix Teknoloji A.Ş. hangi yıl kuruldu?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "zyntrix_x9_kilavuz.md/0",
+        "zyntrix_x9_kilavuz.md/1",
+        "zyntrix_surum_notlari.md/3",
+        "zyntrix_surum_notlari.md/2"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 15.361,
+      "llm_seconds": 9.2,
+      "recall_hit": null,
+      "top1_hit": null,
+      "correct": true
+    },
+    {
+      "id": 24,
+      "type": "unanswerable",
+      "question": "Quicksort algoritmasının en kötü durum karmaşıklığı nedir?",
+      "answer": "Quicksort algoritmasının en kötü durum karmaşıklığı $O(n^2)$'dir.\n(Kaynak: ders_algoritma_karmasikligi.md)",
+      "retrieved": [
+        "ders_algoritma_karmasikligi.md/3",
+        "ders_algoritma_karmasikligi.md/2"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 14.103,
+      "llm_seconds": 11.563,
+      "recall_hit": null,
+      "top1_hit": null,
+      "correct": false
+    },
+    {
+      "id": 25,
+      "type": "unanswerable",
+      "question": "Geoffrey Hinton hangi üniversitede çalışıyor?",
+      "answer": "Geoffrey Hinton, Cambridge Üniversitesi'nde çalışmaktadır.\n(Kaynak: ders_aynir_aglari.md)",
+      "retrieved": [
+        "ders_yapay_sinir_aglari.md/6",
+        "ders_yapay_sinir_aglari.md/3",
+        "ders_yapay_sinir_aglari.md/4",
+        "ders_yapay_sinir_aglari.md/0"
+      ],
+      "is_refusal": false,
+      "retrieval_seconds": 12.811,
+      "llm_seconds": 13.649,
+      "recall_hit": null,
+      "top1_hit": null,
+      "correct": false
+    },
+    {
+      "id": 26,
+      "type": "unanswerable",
+      "question": "PostgreSQL'in en son sürümü hangisi?",
+      "answer": "Bu bilgi belgelerimde yok.",
+      "retrieved": [
+        "zyntrix_surum_notlari.md/0",
+        "ders_veritabanlari.md/3"
+      ],
+      "is_refusal": true,
+      "retrieval_seconds": 14.281,
+      "llm_seconds": 5.016,
+      "recall_hit": null,
+      "top1_hit": null,
+      "correct": true
+    }
+  ]
+}
