@@ -90,6 +90,46 @@ export async function askStream(
   }
 }
 
+export interface EvalSummary {
+  questions: number;
+  recall_at_k: number;
+  top1_rate: number;
+  answerable_accuracy: number;
+  refusal_accuracy: number;
+  overall_accuracy: number;
+  avg_llm_seconds: number;
+  median_total_seconds: number;
+  top_k: number;
+}
+
+export interface EvalRow {
+  id: number;
+  type: "answerable" | "unanswerable";
+  question: string;
+  answer: string;
+  retrieved: string[];
+  is_refusal: boolean;
+  retrieval_seconds: number;
+  llm_seconds: number;
+  recall_hit: boolean | null;
+  top1_hit: boolean | null;
+  correct: boolean;
+}
+
+export interface EvalResults {
+  "v1-baseline"?: { summary: EvalSummary; rows: EvalRow[] };
+  "v2-corrective"?: { summary: EvalSummary; rows: EvalRow[] };
+}
+
+export async function results(): Promise<EvalResults | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/results`, { cache: "no-store" });
+    return res.ok ? res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function health(): Promise<{ status: string; chat_model: string } | null> {
   try {
     const res = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
