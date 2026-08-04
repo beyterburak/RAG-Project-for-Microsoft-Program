@@ -73,6 +73,12 @@ export default function DanismaMasasi() {
               detail: `${ev.kept} kabul · ${ev.out} elendi`,
             }]);
             break;
+          case "high_confidence":
+            setStages((s) => [...s, {
+              label: "Güçlü eşleşme — denetim atlandı",
+              detail: `benzerlik ${ev.score}`,
+            }]);
+            break;
           case "rewritten":
             setStages((s) => [...s, { label: "Soru yeniden yazıldı", detail: "yeni arama" }]);
             break;

@@ -35,3 +35,9 @@ EMBED_BATCH_SIZE = 16   # tek istekte embed edilecek parça sayısı
 MAX_CORRECTIVE_RETRIES = 1  # sorgu yeniden yazma üst sınırı (sonsuz döngü freni)
 WIDE_K = 8                  # corrective ilk getirme havuzu (grader süzer)
 MAX_CONTEXT_CHUNKS = 4      # üretime giden en fazla ilgili parça
+
+# Yüksek güven eşiği: top-1 benzerlik bunun üstündeyse grader ve topraklama
+# denetimi atlanır (soru v1 hızıyla cevaplanır). Eşik ölçümle seçildi:
+# 44 soruluk sette cevaplanamaz soruların en yüksek top-1 skoru 0.6896 —
+# 0.70 üstünde yalnız cevaplanabilir sorular var, sızıntı riski yok.
+HIGH_CONFIDENCE_SCORE = 0.70

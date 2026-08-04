@@ -44,6 +44,7 @@ export async function ask(question: string, variant: Variant): Promise<AskResult
 
 export type StreamEvent =
   | { type: "graded"; attempt: number; kept: number; out: number }
+  | { type: "high_confidence"; score: number }
   | { type: "rewritten"; query: string }
   | { type: "chunks"; chunks: Chunk[]; seconds: number }
   | { type: "token"; text: string }
@@ -116,9 +117,15 @@ export interface EvalRow {
   correct: boolean;
 }
 
+export interface VariantResult {
+  summary: EvalSummary;
+  rows: EvalRow[];
+}
+
 export interface EvalResults {
-  "v1-baseline"?: { summary: EvalSummary; rows: EvalRow[] };
-  "v2-corrective"?: { summary: EvalSummary; rows: EvalRow[] };
+  "v1-baseline"?: VariantResult;
+  "v2-corrective"?: VariantResult;
+  "v3-optimize"?: VariantResult;
 }
 
 export async function results(): Promise<EvalResults | null> {

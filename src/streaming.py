@@ -32,12 +32,21 @@ def stream_events(session: CorrectiveSession, question: str,
     t0 = time.perf_counter()
     rewritten: str | None = None
 
+    high_confidence = False
     if variant == "v2":
         query, attempts = question, 0
         chunks: list[Chunk] = []
         while True:
             attempts += 1
             pool = get_top_chunks(query, config.WIDE_K)
+
+            # yüksek benzerlikte denetim atlanır (v1 hızı, ölçülmüş eşik)
+            if pool and pool[0].score >= config.HIGH_CONFIDENCE_SCORE:
+                chunks = pool[:config.MAX_CONTEXT_CHUNKS]
+                high_confidence = True
+                yield {"type": "high_confidence", "score": round(pool[0].score, 3)}
+                break
+
             flags = session.grade_chunks(question, pool) if pool else []
             chunks = [c for c, ok in zip(pool, flags) if ok][:config.MAX_CONTEXT_CHUNKS]
             yield {"type": "graded", "attempt": attempts,
@@ -76,7 +85,7 @@ def stream_events(session: CorrectiveSession, question: str,
         answer = REFUSAL
 
     revoked = False
-    if variant == "v2" and not is_refusal:
+    if variant == "v2" and not is_refusal and not high_confidence:
         yield {"type": "verifying"}
         if not session.verify_grounded(question, answer, chunks):
             revoked, is_refusal, answer = True, True, REFUSAL

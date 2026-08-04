@@ -2,33 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { results, type EvalResults, type EvalRow, type EvalSummary } from "@/lib/api";
+import {
+  results,
+  type EvalResults,
+  type EvalRow,
+  type VariantResult,
+} from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const pct = (x: number) => `%${Math.round(x * 1000) / 10}`;
+
+type Sutun = { anahtar: keyof EvalResults; ad: string; not: string; data: VariantResult };
 
 function Verdict({ ok }: { ok: boolean }) {
   return (
     <span className={`stamp-mark ${ok ? "stamp-kabul" : "stamp-ret"}`}>
       {ok ? "DOĞRU" : "HATALI"}
     </span>
-  );
-}
-
-function MetricRow({
-  label, v1, v2, better,
-}: { label: string; v1: string; v2: string; better?: "v2" | "eşit" | "maliyet" }) {
-  return (
-    <tr className="border-b border-line">
-      <td className="py-2.5 pr-4 text-sm">{label}</td>
-      <td className="py-2.5 px-4 font-mono text-sm text-center">{v1}</td>
-      <td className="py-2.5 px-4 font-mono text-sm text-center font-semibold">{v2}</td>
-      <td className="py-2.5 pl-4 text-center">
-        {better === "v2" && <span className="stamp-mark stamp-kabul">İYİLEŞME</span>}
-        {better === "eşit" && <span className="font-mono text-[0.62rem] text-muted">—</span>}
-        {better === "maliyet" && <span className="stamp-mark stamp-ret">BEDEL</span>}
-      </td>
-    </tr>
   );
 }
 
@@ -39,8 +29,28 @@ export default function TeftisRaporu() {
     results().then(setData);
   }, []);
 
-  const v1 = data?.["v1-baseline"];
-  const v2 = data?.["v2-corrective"];
+  const tanim: { anahtar: keyof EvalResults; ad: string; not: string }[] = [
+    { anahtar: "v1-baseline", ad: "STANDART (v1)", not: "getir → üret" },
+    { anahtar: "v2-corrective", ad: "DÜZELTMELİ (v2)", not: "getir → denetle → gerekirse yeniden ara → üret → kaynak kontrolü" },
+    { anahtar: "v3-optimize", ad: "OPTİMİZE (v3)", not: "güçlü eşleşmede denetimi atla, yalnız şüpheli getirmede denetle" },
+  ];
+
+  const sutunlar: Sutun[] = data
+    ? tanim.flatMap((t) => (data[t.anahtar] ? [{ ...t, data: data[t.anahtar]! }] : []))
+    : [];
+
+  const enIyi = sutunlar.length
+    ? Math.max(...sutunlar.map((s) => s.data.summary.overall_accuracy))
+    : 0;
+
+  const olcutler: { ad: string; al: (s: VariantResult) => string; buyukIyi: boolean }[] = [
+    { ad: "Belge isabeti (recall@4)", al: (s) => pct(s.summary.recall_at_k), buyukIyi: true },
+    { ad: "Cevap doğruluğu (cevaplanabilir)", al: (s) => pct(s.summary.answerable_accuracy), buyukIyi: true },
+    { ad: "Ret doğruluğu (cevaplanamaz)", al: (s) => pct(s.summary.refusal_accuracy), buyukIyi: true },
+    { ad: "Genel doğruluk", al: (s) => pct(s.summary.overall_accuracy), buyukIyi: true },
+    { ad: "Ortalama cevap süresi", al: (s) => `${s.summary.avg_llm_seconds} sn`, buyukIyi: false },
+    { ad: "Medyan toplam süre", al: (s) => `${s.summary.median_total_seconds} sn`, buyukIyi: false },
+  ];
 
   return (
     <div className="flex flex-col flex-1 max-w-6xl w-full mx-auto px-6 pb-16">
@@ -51,7 +61,7 @@ export default function TeftisRaporu() {
           </p>
           <h1 className="h-display text-3xl sm:text-4xl font-bold">Teftiş Raporu</h1>
           <p className="italic text-ink-soft text-sm mt-1">
-            Standart (v1) ve düzeltmeli (v2) modların aynı 26 soruluk setle ölçülmüş karşılaştırması.
+            Cevaplama modlarının aynı 44 soruluk etiketli setle ölçülmüş karşılaştırması.
           </p>
         </div>
         <ThemeToggle />
@@ -80,32 +90,40 @@ export default function TeftisRaporu() {
         </div>
       )}
 
-      {v1 && v2 && (
+      {sutunlar.length > 0 && (
         <main className="mt-8 space-y-10">
-          {/* ===== Özet karnesi ===== */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[
-              { ad: "STANDART (v1)", s: v1.summary, not: "getir → üret" },
-              { ad: "DÜZELTMELİ (v2)", s: v2.summary, not: "getir → denetle → gerekirse yeniden ara → üret → kaynak kontrolü" },
-            ].map(({ ad, s, not }) => (
-              <div key={ad} className="tutanak p-6">
-                <p className="font-mono text-[0.65rem] tracking-[0.2em] text-ink-soft font-semibold mb-1">{ad}</p>
-                <p className="font-mono text-[0.6rem] text-muted mb-4">{not}</p>
-                <p className="h-display text-5xl font-bold">{pct(s.overall_accuracy)}</p>
-                <p className="font-mono text-[0.62rem] text-muted mt-1 mb-4">genel doğruluk · {s.questions} soru</p>
-                <div className="space-y-1">
-                  <div className="islem-satiri">
-                    <span>Cevaplanabilir</span><span className="dolgu" /><span>{pct(s.answerable_accuracy)}</span>
-                  </div>
-                  <div className="islem-satiri">
-                    <span>Cevaplanamaz (ret)</span><span className="dolgu" /><span>{pct(s.refusal_accuracy)}</span>
-                  </div>
-                  <div className="islem-satiri">
-                    <span>Medyan süre</span><span className="dolgu" /><span>{s.median_total_seconds} sn</span>
+          {/* ===== Özet karneler ===== */}
+          <section className={`grid grid-cols-1 gap-6 ${sutunlar.length > 2 ? "lg:grid-cols-3 sm:grid-cols-2" : "sm:grid-cols-2"}`}>
+            {sutunlar.map(({ ad, not, data: d }) => {
+              const kazanan = d.summary.overall_accuracy === enIyi;
+              return (
+                <div key={ad} className="tutanak p-6 relative">
+                  {kazanan && (
+                    <span className="stamp-mark stamp-kabul absolute top-4 right-4">EN İYİ</span>
+                  )}
+                  <p className="font-mono text-[0.65rem] tracking-[0.2em] text-ink-soft font-semibold mb-1">{ad}</p>
+                  <p className="font-mono text-[0.6rem] text-muted mb-4 leading-relaxed">{not}</p>
+                  <p className="h-display text-5xl font-bold">{pct(d.summary.overall_accuracy)}</p>
+                  <p className="font-mono text-[0.62rem] text-muted mt-1 mb-4">
+                    genel doğruluk · {d.summary.questions} soru
+                  </p>
+                  <div className="space-y-1">
+                    <div className="islem-satiri">
+                      <span>Cevaplanabilir</span><span className="dolgu" />
+                      <span>{pct(d.summary.answerable_accuracy)}</span>
+                    </div>
+                    <div className="islem-satiri">
+                      <span>Cevaplanamaz (ret)</span><span className="dolgu" />
+                      <span>{pct(d.summary.refusal_accuracy)}</span>
+                    </div>
+                    <div className="islem-satiri">
+                      <span>Medyan süre</span><span className="dolgu" />
+                      <span>{d.summary.median_total_seconds} sn</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </section>
 
           {/* ===== Metrik cetveli ===== */}
@@ -117,64 +135,72 @@ export default function TeftisRaporu() {
               <thead>
                 <tr className="border-b-2 border-line-strong font-mono text-[0.62rem] tracking-[0.15em] text-muted">
                   <th className="text-left pb-2 pr-4">ÖLÇÜT</th>
-                  <th className="pb-2 px-4">v1</th>
-                  <th className="pb-2 px-4">v2</th>
-                  <th className="pb-2 pl-4">HÜKÜM</th>
+                  {sutunlar.map((s) => (
+                    <th key={s.ad} className="pb-2 px-4">{s.anahtar.split("-")[0].toUpperCase()}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                <MetricRow label={`Belge isabeti (recall@${v1.summary.top_k})`}
-                  v1={pct(v1.summary.recall_at_k)} v2={pct(v2.summary.recall_at_k)} better="eşit" />
-                <MetricRow label="Cevap doğruluğu (cevaplanabilir)"
-                  v1={pct(v1.summary.answerable_accuracy)} v2={pct(v2.summary.answerable_accuracy)} better="v2" />
-                <MetricRow label="Ret doğruluğu (cevaplanamaz)"
-                  v1={pct(v1.summary.refusal_accuracy)} v2={pct(v2.summary.refusal_accuracy)} better="v2" />
-                <MetricRow label="Genel doğruluk"
-                  v1={pct(v1.summary.overall_accuracy)} v2={pct(v2.summary.overall_accuracy)} better="v2" />
-                <MetricRow label="Ortalama cevap süresi"
-                  v1={`${v1.summary.avg_llm_seconds} sn`} v2={`${v2.summary.avg_llm_seconds} sn`} better="maliyet" />
-                <MetricRow label="Medyan toplam süre"
-                  v1={`${v1.summary.median_total_seconds} sn`} v2={`${v2.summary.median_total_seconds} sn`} better="maliyet" />
+                {olcutler.map((o) => {
+                  const degerler = sutunlar.map((s) => o.al(s.data));
+                  const sayilar = sutunlar.map((s) => parseFloat(o.al(s.data).replace("%", "").replace(" sn", "")));
+                  const enIyiDeger = o.buyukIyi ? Math.max(...sayilar) : Math.min(...sayilar);
+                  return (
+                    <tr key={o.ad} className="border-b border-line">
+                      <td className="py-2.5 pr-4 text-sm">{o.ad}</td>
+                      {degerler.map((d, i) => (
+                        <td key={i}
+                          className={`py-2.5 px-4 font-mono text-sm text-center ${sayilar[i] === enIyiDeger ? "font-semibold text-stamp" : ""}`}>
+                          {d}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <p className="font-mono text-[0.62rem] text-muted mt-4">
-              Hüküm: düzeltmeli mod doğruluğu artırır; bedeli cevap süresidir. Denetim maliyeti bilinçli bir ödünleşimdir.
+              Her satırda en iyi değer vurgulanmıştır. Süre ölçütlerinde küçük olan iyidir.
             </p>
           </section>
 
-          {/* ===== Soru bazlı denetim listesi ===== */}
+          {/* ===== Soru bazlı denetim ===== */}
           <section className="tutanak p-6 overflow-x-auto">
             <h2 className="font-mono text-[0.68rem] tracking-[0.25em] text-ink-soft font-semibold mb-1">
               SORU BAZLI DENETİM
             </h2>
             <p className="font-mono text-[0.62rem] text-muted mb-4">
-              Aynı sorular iki modda da soruldu; değişen sonuçlar vurgulanmıştır.
+              Aynı sorular her modda soruldu; modlar arasında sonucu değişen satırlar vurgulanmıştır.
             </p>
-            <table className="w-full min-w-[560px]">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="border-b-2 border-line-strong font-mono text-[0.62rem] tracking-[0.15em] text-muted">
                   <th className="text-left pb-2 pr-3">#</th>
                   <th className="text-left pb-2 pr-4">SORU</th>
                   <th className="pb-2 px-3">TÜR</th>
-                  <th className="pb-2 px-3">v1</th>
-                  <th className="pb-2 pl-3">v2</th>
+                  {sutunlar.map((s) => (
+                    <th key={s.ad} className="pb-2 px-3">{s.anahtar.split("-")[0].toUpperCase()}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {v1.rows.map((r1: EvalRow) => {
-                  const r2 = v2.rows.find((r) => r.id === r1.id);
-                  if (!r2) return null;
-                  const changed = r1.correct !== r2.correct;
+                {sutunlar[0].data.rows.map((ilk: EvalRow) => {
+                  const satirlar = sutunlar.map((s) => s.data.rows.find((r) => r.id === ilk.id));
+                  const sonuclar = satirlar.map((r) => r?.correct);
+                  const degisti = new Set(sonuclar).size > 1;
                   return (
-                    <tr key={r1.id}
-                      className={`border-b border-line ${changed ? "bg-[var(--stamp-soft)]" : ""}`}>
-                      <td className="py-2 pr-3 font-mono text-[0.7rem] text-muted">{r1.id}</td>
-                      <td className="py-2 pr-4 text-sm">{r1.question}</td>
+                    <tr key={ilk.id}
+                      className={`border-b border-line ${degisti ? "bg-[var(--stamp-soft)]" : ""}`}>
+                      <td className="py-2 pr-3 font-mono text-[0.7rem] text-muted">{ilk.id}</td>
+                      <td className="py-2 pr-4 text-sm">{ilk.question}</td>
                       <td className="py-2 px-3 text-center font-mono text-[0.6rem] text-muted">
-                        {r1.type === "answerable" ? "CEVAPLI" : "CEVAPSIZ"}
+                        {ilk.type === "answerable" ? "CEVAPLI" : "CEVAPSIZ"}
                       </td>
-                      <td className="py-2 px-3 text-center"><Verdict ok={r1.correct} /></td>
-                      <td className="py-2 pl-3 text-center"><Verdict ok={r2.correct} /></td>
+                      {satirlar.map((r, i) => (
+                        <td key={i} className="py-2 px-3 text-center">
+                          {r ? <Verdict ok={r.correct} /> : <span className="text-muted">—</span>}
+                        </td>
+                      ))}
                     </tr>
                   );
                 })}
@@ -185,7 +211,7 @@ export default function TeftisRaporu() {
       )}
 
       <footer className="mt-auto pt-12 text-center font-mono text-[0.6rem] tracking-[0.2em] text-muted">
-        ÖLÇÜM: eval/eval_set.json · 26 SORU · AYNI BİLGİ TABANI VE MODELLER
+        ÖLÇÜM: eval/eval_set.json · 12 BELGE · 82 PARÇA · AYNI MODELLER
       </footer>
     </div>
   );

@@ -21,21 +21,25 @@ from src.prompts import REFUSAL, build_qa_messages
 from src.rag import Answer, RagSession
 from src.retrieval import Chunk, get_top_chunks
 
-GRADER_SYSTEM = """You are a strict relevance grader for a retrieval system.
+GRADER_SYSTEM = """You are a relevance grader for a retrieval system.
 You will see a QUESTION and numbered PASSAGES.
-For each passage decide: does it CONTAIN the specific fact needed to answer the
-question (the exact number, name, date or statement being asked for)?
-Topical similarity is NOT enough — if the passage discusses the subject but does
-not state the requested fact, the verdict is no.
+For each passage decide: could it help answer the question — does it contain the
+requested fact, or part of it, or information about the exact thing being asked?
+Say no when the passage is about a different topic, or about a different product
+model than the question asks about.
+When a passage plausibly contains the answer, say yes.
 Reply with ONLY one line, one verdict per passage, comma-separated, format: 1:yes, 2:no, 3:yes, 4:no
 No explanations."""
 
-VERIFY_SYSTEM = """You are a groundedness checker for a question answering system.
-You will see a QUESTION, PASSAGES, and a proposed ANSWER.
-Reply "yes" ONLY if the answer's claim is explicitly stated in the passages AND
-it answers the question about the exact entity being asked (not a similar one).
-If the answer uses knowledge not in the passages, or answers about a different
-entity/product, reply "no". Reply with ONLY yes or no."""
+VERIFY_SYSTEM = """You check whether an answer is supported by the given passages.
+
+Reply "no" ONLY when one of these is clearly true:
+- the answer states a specific fact (number, name, date) that appears nowhere in the passages;
+- the answer is about a different product or entity than the question asks about.
+
+Otherwise reply "yes". If the answer's key facts can be located in the passages,
+reply "yes". When in doubt, reply "yes".
+Reply with ONLY yes or no."""
 
 REWRITE_SYSTEM = """You rewrite search queries for a document retrieval system.
 The original query failed to retrieve relevant passages.
@@ -51,6 +55,7 @@ class CorrectiveAnswer(Answer):
     attempts: int = 1
     graded_out: int = 0          # elenen parça sayısı (toplam denemelerde)
     forced_refusal: bool = False  # grader kararıyla üretime gitmeden ret
+    high_confidence: bool = False  # denetim atlandı (yüksek benzerlik)
 
 
 class CorrectiveSession(RagSession):
@@ -105,11 +110,20 @@ class CorrectiveSession(RagSession):
 
         query, attempts, graded_out, rewritten = question, 0, 0, None
         relevant: list[Chunk] = []
+        high_confidence = False
         while True:
             attempts += 1
-            # geniş havuz getir, sıkı grader süzsün (spec parçası 5-8. sırada
+            # geniş havuz getir, grader süzsün (spec parçası 5-8. sırada
             # kalabiliyor — v1 hata kategorisi A'nın kök nedeni)
             chunks = get_top_chunks(query, config.WIDE_K)
+
+            # Yüksek güvenli eşleşmede denetimi atla: ölçüme göre bu eşiğin
+            # üstünde cevaplanamaz soru yok, denetimin katacağı bir şey de yok.
+            if chunks and chunks[0].score >= config.HIGH_CONFIDENCE_SCORE:
+                relevant = chunks[:config.MAX_CONTEXT_CHUNKS]
+                high_confidence = True
+                break
+
             flags = self.grade_chunks(question, chunks) if chunks else []
             relevant = [c for c, ok in zip(chunks, flags) if ok][:config.MAX_CONTEXT_CHUNKS]
             graded_out += len(chunks) - len(relevant)
@@ -126,6 +140,7 @@ class CorrectiveSession(RagSession):
                 retrieval_seconds=t1 - t0, llm_seconds=0.0,
                 rewritten_query=rewritten, attempts=attempts,
                 graded_out=graded_out, forced_refusal=True,
+                high_confidence=False,
             )
 
         messages = build_qa_messages(question, [(c.source, c.text) for c in relevant])
@@ -141,9 +156,13 @@ class CorrectiveSession(RagSession):
             answer = REFUSAL
 
         forced = False
-        if not is_refusal and not self.verify_grounded(question, answer, relevant):
-            # cevap bağlamda açıkça yok (parametrik sızıntı / yanlış varlık) → ret
-            answer, is_refusal, forced = REFUSAL, True, True
+        # Topraklama denetimi yalnız düşük güvenli getirmelerde: yüksek benzerlikte
+        # cevap zaten pasajlara dayanıyor ve denetim yanlış-negatif üretiyordu
+        # (ölçüm: aşırı retlerin 3/4'ü bu guard'dan geliyordu).
+        if not is_refusal and not high_confidence:
+            if not self.verify_grounded(question, answer, relevant):
+                # cevap bağlamda yok (parametrik sızıntı / yanlış varlık) → ret
+                answer, is_refusal, forced = REFUSAL, True, True
         t3 = time.perf_counter()
 
         return CorrectiveAnswer(
@@ -151,4 +170,5 @@ class CorrectiveSession(RagSession):
             is_refusal=is_refusal, retrieval_seconds=t1 - t0,
             llm_seconds=t3 - t1, rewritten_query=rewritten,
             attempts=attempts, graded_out=graded_out, forced_refusal=forced,
+            high_confidence=high_confidence,
         )

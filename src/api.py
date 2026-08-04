@@ -119,7 +119,7 @@ def ask_stream(req: AskRequest) -> StreamingResponse:
 @app.get("/api/results")
 def results() -> dict:
     out = {}
-    for variant in ("v1-baseline", "v2-corrective"):
+    for variant in ("v1-baseline", "v2-corrective", "v3-optimize"):
         path = config.EVAL_DIR / "results" / f"{variant}.json"
         if path.exists():
             out[variant] = json.loads(path.read_text(encoding="utf-8"))
