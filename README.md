@@ -11,6 +11,8 @@ Kullanıcı sorusu → SQLite vektör veritabanında benzerlik araması → geti
 - **Sohbet modeli:** `qwen3.5-2b` (Hafta 3'te phi-3.5-mini'den geçildi: Türkçe çok-parçalı sentez kalitesi; 4b sınıfı 8 GB VRAM'e sığmıyor — bkz. `config.py`)
 - **Embedding modeli:** `qwen3-embedding-0.6b`
 - **Vektör deposu:** SQLite (brute-force kosinüs benzerliği)
+- **Bilgi tabanı:** 12 Türkçe belge / 82 parça (kurgusal ürün dokümanları + ders notları)
+- **Arayüz:** CLI (`chat`) ve web (Next.js + FastAPI, "Yerel Arşiv" teması)
 
 ## Kurulum
 
@@ -49,18 +51,18 @@ python main.py integration-test  # uçtan uca zincir testi
 python main.py chunk-demo        # belge parçalama istatistikleri
 ```
 
-## Sonuçlar (v1 vs v2)
+## Sonuçlar
 
-Aynı 26 soruluk etiketli set üzerinde ([ayrıntılı rapor](eval/results/benchmark_v1_vs_v2.md)):
+44 soruluk etiketli set, 82 parçalık bilgi tabanı ([ayrıntılı rapor](eval/results/benchmark_v1_vs_v2.md)):
 
-| Metrik | v1-baseline | v2-corrective |
-|---|---|---|
-| Genel doğruluk | %73.1 | **%80.8** |
-| Cevap doğruluğu (cevaplanabilir) | %80 | %85 |
-| Ret doğruluğu (cevaplanamaz) | %50 | %66.7 |
-| Medyan toplam süre | 8.9 sn | 24.7 sn |
+| Metrik | **v1-baseline** | v2-corrective | v3-optimize |
+|---|---|---|---|
+| Genel doğruluk | **%79.5** | %77.3 | %75.0 |
+| Cevap doğruluğu (cevaplanabilir) | **%82.9** | %80.0 | %80.0 |
+| Ret doğruluğu (cevaplanamaz) | **%66.7** | **%66.7** | %55.6 |
+| Medyan toplam süre | **8.8 sn** | 26.6 sn | 23.6 sn |
 
-v2 (CRAG deseni: geniş getirme → grader → sorgu yeniden yazımı → topraklama kontrolü) doğruluğu +7.7 puan artırır; bedeli ~2.8× gecikmedir. Bilinen sınırlamalar ve tasarım kararları için rapora bakınız.
+**Üretim varyantı: v1-baseline.** Corrective katmanı (v2/v3) 43 parçalık küçük korpusta +7.7 puan kazandırıyordu; korpus 82 parçaya çıkıp çeldirici belge eklenince avantaj tersine döndü. 2B modelle çalışan grader/doğrulayıcı, engellediği halüsinasyondan fazlasını doğru cevaplardan kesiyor. Corrective hatlar depoda korunuyor (`--corrective`) ve daha yetenekli bir judge modeliyle yeniden değerlendirilebilir.
 
 İlk çalıştırmada SDK, donanıma uygun execution provider'ları ve modeli indirir (birkaç dakika sürebilir).
 
