@@ -26,6 +26,26 @@
     {"id": 23, "type": "unanswerable", "question": "Zyntrix Teknoloji A.Ş. hangi yıl kuruldu?", "expected_sources": [], "keywords": []},
     {"id": 24, "type": "unanswerable", "question": "Quicksort algoritmasının en kötü durum karmaşıklığı nedir?", "expected_sources": [], "keywords": []},
     {"id": 25, "type": "unanswerable", "question": "Geoffrey Hinton hangi üniversitede çalışıyor?", "expected_sources": [], "keywords": []},
-    {"id": 26, "type": "unanswerable", "question": "PostgreSQL'in en son sürümü hangisi?", "expected_sources": [], "keywords": []}
+    {"id": 26, "type": "unanswerable", "question": "PostgreSQL'in en son sürümü hangisi?", "expected_sources": [], "keywords": []},
+
+    {"id": 27, "type": "answerable", "question": "Zyntrix X9 Pro standart modda kaç saniyede bir ölçüm alır?", "expected_sources": ["zyntrix_x9_pro_kilavuz.md"], "keywords": ["15"]},
+    {"id": 28, "type": "answerable", "question": "Zyntrix X9 Pro'nun pil ömrü tek şarjla kaç saattir?", "expected_sources": ["zyntrix_x9_pro_kilavuz.md"], "keywords": ["21"]},
+    {"id": 29, "type": "answerable", "question": "X9 Pro'nun suya dayanıklılık sınıfı nedir?", "expected_sources": ["zyntrix_x9_pro_kilavuz.md", "zyntrix_sss.md"], "keywords": ["IP67"]},
+    {"id": 30, "type": "answerable", "question": "X9 Pro'daki saha modu ne zaman kullanılabilir?", "expected_sources": ["zyntrix_x9_pro_kilavuz.md"], "keywords": ["şarj", "güç"]},
+    {"id": 31, "type": "answerable", "question": "Zyntrix X7'nin cihaz garantisi kaç yıldır?", "expected_sources": ["zyntrix_garanti_sartnamesi.md"], "keywords": ["2 yıl", "2 y"]},
+    {"id": 32, "type": "answerable", "question": "Ürünü kaç gün içinde iade edebilirim?", "expected_sources": ["zyntrix_garanti_sartnamesi.md"], "keywords": ["14"]},
+    {"id": 33, "type": "answerable", "question": "Onarım süresi en fazla kaç iş günüdür?", "expected_sources": ["zyntrix_garanti_sartnamesi.md"], "keywords": ["20"]},
+    {"id": 34, "type": "answerable", "question": "İlk kurulumda CO2 sensörü kaç dakika ısınma süresi ister?", "expected_sources": ["zyntrix_kurulum_kilavuzu.md"], "keywords": ["20"]},
+    {"id": 35, "type": "answerable", "question": "Cihazı yerden ne kadar yükseğe yerleştirmeliyim?", "expected_sources": ["zyntrix_kurulum_kilavuzu.md"], "keywords": ["1", "metre"]},
+    {"id": 36, "type": "answerable", "question": "Fabrika ayarlarına dönersem ölçüm geçmişim silinir mi?", "expected_sources": ["zyntrix_kurulum_kilavuzu.md"], "keywords": ["silinmez", "silinmiyor", "korunur"]},
+    {"id": 37, "type": "answerable", "question": "Makine öğrenmesi terimini kim, hangi yılda ortaya attı?", "expected_sources": ["ders_makine_ogrenmesi.md"], "keywords": ["Samuel", "1959"]},
+    {"id": 38, "type": "answerable", "question": "Aşırı öğrenme (overfitting) nedir?", "expected_sources": ["ders_makine_ogrenmesi.md"], "keywords": ["eğitim", "genelle"]},
+    {"id": 39, "type": "answerable", "question": "INNER JOIN ile LEFT JOIN arasındaki fark nedir?", "expected_sources": ["ders_sql.md"], "keywords": ["eşleşen", "sol"]},
+    {"id": 40, "type": "answerable", "question": "Mikro çekirdek kullanan işletim sistemlerine örnek verir misin?", "expected_sources": ["ders_isletim_sistemleri.md"], "keywords": ["QNX", "BeOS", "Windows NT"]},
+    {"id": 41, "type": "answerable", "question": "Önleyici ve kooperatif çok görevlilik arasındaki fark nedir?", "expected_sources": ["ders_isletim_sistemleri.md"], "keywords": ["zorla", "kendi", "bırak"]},
+
+    {"id": 42, "type": "unanswerable", "question": "Zyntrix X10 ne zaman piyasaya çıkacak?", "expected_sources": [], "keywords": []},
+    {"id": 43, "type": "unanswerable", "question": "Zyntrix Link uygulaması hangi işletim sistemi sürümlerini destekliyor?", "expected_sources": [], "keywords": []},
+    {"id": 44, "type": "unanswerable", "question": "Python'da liste ile tuple arasındaki fark nedir?", "expected_sources": [], "keywords": []}
   ]
 }
