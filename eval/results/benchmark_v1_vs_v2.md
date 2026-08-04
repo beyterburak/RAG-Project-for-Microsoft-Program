@@ -68,10 +68,10 @@ v3'te denetim yalnız düşük güvenli getirmelerde çalışır. Eşik tahminle
 
 | Kategori | Sorular | Açıklama |
 |---|---|---|
-| **Model karıştırması** | #1, #2, #7 | Doğru parça getirildi ama X9/X9 Pro veya Standart/Eco modu karıştırıldı |
+| **Model/mod karıştırması** | #1, #2, #7 | Doğru parça getirildi ama X9/X9 Pro veya Standart/Eco modu karıştırıldı |
+| **Parametrik sızıntı / halüsinasyon** | #23, #24, #44 | Cevap belgede yok; model ön eğitiminden verdi ya da belgedeki ifadeyi çarpıttı (#23: "2024'te piyasaya sürüldü" → "2024'te kuruldu") |
+| **Retrieval kaçağı** | #4, #5 | İlgili teknik özellik parçası top-4'e giremedi |
 | **Ters okuma** | #36 | Belgede "silinmez" yazıyor, model "silinir" dedi |
-| **Retrieval kaçağı** | #4, #5, #34 | İlgili spec parçası top-4'e giremedi |
-| **Parametrik sızıntı** | #24, #44 | Cevap belgede yok, model ön eğitiminden verdi |
 
 Hataların çoğu (#1, #2, #7, #36) **retrieval değil okuma-anlama** kaynaklı. Bu, corrective katmanının neden yardımcı olamadığını da açıklıyor: sorun getirilen bağlamda değil, o bağlamın yorumlanmasında.
 

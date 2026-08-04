@@ -1,112 +1,107 @@
 # Yerel RAG AI Asistanı
 
-Microsoft Foundry Local ile tamamen çevrimdışı çalışan belge tabanlı soru-cevap (RAG) sistemi.
+Microsoft Foundry Local ile **tamamen çevrimdışı** çalışan, kaynak gösteren belge soru-cevap (RAG) sistemi. Cevaplar yalnızca yerel belge arşivine dayanır; bilgi arşivde yoksa sistem "bilmiyorum" der.
 
-**Program:** Microsoft Türkiye CSU Yaz Programı 2026 · **Süre:** 6 hafta (13 Temmuz – 23 Ağustos 2026)
+**Program:** Microsoft Türkiye CSU Yaz Programı 2026
+
+📄 [Proje Raporu](docs/proje-raporu.md) · 📊 [Ölçüm Raporu](eval/results/benchmark_v1_vs_v2.md) · 🎤 [Sunum Taslağı](docs/sunum.md)
+
+---
 
 ## Mimari
 
-Kullanıcı sorusu → SQLite vektör veritabanında benzerlik araması → getirilen parçalar + soru → Foundry Local LLM → kaynağa dayalı cevap. Tüm akış internetsiz, tek cihazda.
+```
+Soru → embedding → SQLite'ta kosinüs benzerliği → en ilgili 4 parça
+     → bağlam + sistem promptu → yerel LLM → kaynaklı cevap
+                    [tamamı tek cihazda, internet yok]
+```
 
-- **Sohbet modeli:** `qwen3.5-2b` (Hafta 3'te phi-3.5-mini'den geçildi: Türkçe çok-parçalı sentez kalitesi; 4b sınıfı 8 GB VRAM'e sığmıyor — bkz. `config.py`)
-- **Embedding modeli:** `qwen3-embedding-0.6b`
-- **Vektör deposu:** SQLite (brute-force kosinüs benzerliği)
-- **Bilgi tabanı:** 12 Türkçe belge / 82 parça (kurgusal ürün dokümanları + ders notları)
-- **Arayüz:** CLI (`chat`) ve web (Next.js + FastAPI, "Yerel Arşiv" teması)
+| Bileşen | Seçim |
+|---|---|
+| Sohbet modeli | `qwen3.5-2b` (Foundry Local, TensorRT-RTX hızlandırma) |
+| Embedding modeli | `qwen3-embedding-0.6b` (1024 boyut) |
+| Vektör deposu | SQLite — float32 blob, brute-force kosinüs |
+| Bilgi tabanı | 12 Türkçe belge / 82 parça |
+| Arayüz | CLI + web (Next.js + FastAPI) |
+
+Model ve parametre seçimlerinin gerekçeleri için [proje raporuna](docs/proje-raporu.md) bakınız.
 
 ## Kurulum
 
 ```powershell
-# Windows
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+python main.py ingest
 ```
 
-```bash
-# macOS / Linux
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-```
+macOS/Linux için `python3 -m venv .venv && source .venv/bin/activate`. İlk çalıştırmada SDK, donanıma uygun execution provider'ları ve modelleri indirir (birkaç dakika).
 
 ## Kullanım
 
 ```bash
-# Asıl kullanım
-python main.py ingest                     # data/ altındaki belgeleri işle → rag.db
-python main.py chat                       # etkileşimli soru-cevap (baseline)
-python main.py ask "soru"                 # tek soru (baseline v1)
-python main.py ask "soru" --corrective    # tek soru (corrective v2)
-python main.py eval                       # 26 soruluk eval seti → v1 metrikleri
-python main.py eval --variant v2-corrective --corrective  # v2 metrikleri
-
-# Yardımcı / tanılama
-python main.py catalog           # kataloğu listele, config.py alias'larını doğrula
-python main.py hello             # kurulum testi: yerel modelden ilk çıkarım
-python main.py retrieve [soru]   # top-K parça getir / retrieval doğrulama seti
-python main.py embed-demo        # embedding + kosinüs benzerlik demosu
-python main.py db-demo           # SQLite şema + serileştirme testi
-python main.py prompt-demo       # prompt şablonu davranış gözlemi
-python main.py integration-test  # uçtan uca zincir testi
-python main.py chunk-demo        # belge parçalama istatistikleri
+python main.py chat            # etkileşimli soru-cevap (önerilen)
+python main.py ask "soru"      # tek soru
+python main.py serve           # web arayüzü API'si (127.0.0.1:8000)
 ```
+
+Web arayüzü için ikinci bir terminalde:
+
+```bash
+npm --prefix web run dev       # http://localhost:3000
+```
+
+<details>
+<summary>Değerlendirme ve tanılama komutları</summary>
+
+```bash
+python main.py eval                    # 44 soruluk eval seti → v1 metrikleri
+python main.py eval --variant v2-corrective --corrective   # denetimli varyant
+python main.py ask "soru" --corrective # tek soru, denetimli hat
+python main.py retrieve "soru"         # yalnız arama sonuçlarını göster
+python main.py catalog                 # model kataloğu + alias doğrulama
+python main.py chunk-demo              # parçalama istatistikleri
+python main.py integration-test        # uçtan uca zincir testi
+```
+</details>
 
 ## Sonuçlar
 
-44 soruluk etiketli set, 82 parçalık bilgi tabanı ([ayrıntılı rapor](eval/results/benchmark_v1_vs_v2.md)):
+44 soruluk etiketli set (35 cevaplanabilir + 9 bilerek cevaplanamaz), 82 parçalık bilgi tabanı:
 
-| Metrik | **v1-baseline** | v2-corrective | v3-optimize |
+| Metrik | **v1 (üretim)** | v2 (deneysel) | v3 (deneysel) |
 |---|---|---|---|
 | Genel doğruluk | **%79.5** | %77.3 | %75.0 |
-| Cevap doğruluğu (cevaplanabilir) | **%82.9** | %80.0 | %80.0 |
-| Ret doğruluğu (cevaplanamaz) | **%66.7** | **%66.7** | %55.6 |
-| Medyan toplam süre | **8.8 sn** | 26.6 sn | 23.6 sn |
+| Cevap doğruluğu | **%82.9** | %80.0 | %80.0 |
+| Ret doğruluğu | **%66.7** | **%66.7** | %55.6 |
+| Medyan süre | **8.8 sn** | 26.6 sn | 23.6 sn |
 
-**Üretim varyantı: v1-baseline.** Corrective katmanı (v2/v3) 43 parçalık küçük korpusta +7.7 puan kazandırıyordu; korpus 82 parçaya çıkıp çeldirici belge eklenince avantaj tersine döndü. 2B modelle çalışan grader/doğrulayıcı, engellediği halüsinasyondan fazlasını doğru cevaplardan kesiyor. Corrective hatlar depoda korunuyor (`--corrective`) ve daha yetenekli bir judge modeliyle yeniden değerlendirilebilir.
-
-İlk çalıştırmada SDK, donanıma uygun execution provider'ları ve modeli indirir (birkaç dakika sürebilir).
+**Üretim varyantı v1.** v2/v3, cevap üretmeden önce getirilen parçaları ve üretilen cevabı ayrıca denetleyen "corrective" hatlardır. Küçük korpusta (43 parça) v2 **+7.7 puan** kazandırıyordu; korpus 82 parçaya çıkıp benzer içerikli çeldirici belge eklenince avantaj tersine döndü — denetim katmanı, engellediği halüsinasyondan fazlasını doğru cevaplardan kesti. Ayrıntılı analiz: [ölçüm raporu](eval/results/benchmark_v1_vs_v2.md).
 
 ## Proje Yapısı
 
 ```
-main.py              # giriş noktası (CLI komutları)
-config.py            # model alias'ları + RAG/corrective parametreleri
+main.py               # CLI giriş noktası
+config.py             # model alias'ları + RAG parametreleri
 src/
-  foundry.py         # Foundry Local SDK ortak yardımcıları (EP kaydı, model yükleme)
-  similarity.py      # embedding üretimi + kosinüs benzerliği
-  chunking.py        # başlık/paragraf saygılı parametrik belge parçalama
-  db.py              # SQLite şeması + float32 blob serileştirme (idempotent)
-  ingest.py          # belgeler → parça → toplu embedding → rag.db
-  retrieval.py       # get_top_chunks: sorgu embed → kosinüs top-K
-  prompts.py         # Q&A prompt şablonu (REFUSAL, kaynak gösterimi)
-  rag.py             # v1: RagSession + answer_query + ask/chat CLI
-  corrective.py      # v2: grader + sorgu yeniden yazımı + topraklama kontrolü
-  evaluate.py        # eval harness: recall@K, doğruluk, gecikme → eval/results/
-  hello_model.py     # kurulum doğrulama testi
-  check_catalog.py   # katalog listeleme + alias doğrulama
-  prompt_demo.py     # bağlamlı/bağlamsız davranış gözlemi
-  integration_test.py# uçtan uca zincir testi
-data/                # bilgi tabanı belgeleri (6 belge: 3 kurgusal + 3 ders notu)
-eval/                # eval_set.json + results/ (v1, v2, karşılaştırma raporu)
-notebooks/           # deneyler
+  foundry.py          # Foundry Local SDK yardımcıları (EP kaydı, model yükleme)
+  chunking.py         # başlık/paragraf saygılı belge parçalama
+  similarity.py       # embedding üretimi + kosinüs benzerliği
+  db.py               # SQLite şeması + float32 blob serileştirme
+  ingest.py           # belge → parça → embedding → rag.db
+  retrieval.py        # get_top_chunks: arama katmanı
+  prompts.py          # Q&A prompt şablonu (ret kalıbı, kaynak gösterimi)
+  rag.py              # v1 üretim hattı (RagSession, answer_query)
+  corrective.py       # v2/v3 deneysel hat (grader, rewrite, topraklama)
+  evaluate.py         # ölçüm çatısı → eval/results/
+  api.py              # FastAPI: /api/ask, /api/ask/stream, /api/results
+  streaming.py        # SSE olay üretici (web arayüzü canlı akışı)
+web/                  # Next.js arayüzü ("Yerel Arşiv" teması)
+data/                 # 12 belge: 6 kurgusal ürün dokümanı + 6 ders notu
+eval/                 # eval_set.json + results/ (ölçümler, karşılaştırma raporu)
+docs/                 # proje raporu + sunum taslağı
 ```
 
-## Hafta 1 Notları (entegrasyon özeti)
+## Lisans ve Kaynaklar
 
-Doğrulanan zincir: `embed → SQLite → retrieval → prompt → LLM` (`integration-test` ile).
-
-- **Modeller (katalog teyitli):** sohbet `phi-3.5-mini` (TensorRT-RTX GPU), embedding `qwen3-embedding-0.6b` — 1024 boyut, normalize vektör.
-- **Şema kararı:** embedding float32 BLOB (kayıpsız, DB gidiş-dönüşünde skorlar bit düzeyinde aynı); `UNIQUE(source, chunk_index)` + `INSERT OR REPLACE` → idempotent ingestion.
-- **Prompt kararı (deney destekli):** sistem yönergesi İngilizce + "soruyla aynı dilde cevapla" — phi-3.5-mini Türkçe yönergede biçim kurallarına uymuyor. Ret cevabı `REFUSAL` sabiti; modelin ret cevabına da kaynak ekleme huyu Hafta 3'te kırpılacak.
-- **Gözlem:** bağlamsız modelin uydurma ürün hakkında kendinden emin halüsinasyonu vs bağlamlı kaynaklı doğru cevap — sunum için hazır karşılaştırma.
-
-## Yol Haritası
-
-| Hafta | Odak | Çıktı |
-|-------|------|-------|
-| 1 | Kurulum + temeller | Çalışan Foundry Local çıkarımı |
-| 2 | Chunking + ingestion + retrieval | Dolu SQLite DB + `get_top_chunks()` |
-| 3 | LLM entegrasyonu | Baseline RAG botu (v1) |
-| 4 | Değerlendirme çatısı | Eval harness + baseline metrikleri |
-| 5 | Corrective/Agentic RAG | v2-corrective varyantı |
-| 6 | Benchmark + sunum | v1 vs v2 karşılaştırma raporu |
+Ders notları Vikipedi'den derlenmiştir (CC BY-SA, her dosyada atıflı). Zyntrix ürün dokümanları tamamen kurgusaldır — RAG'ın gerçekten belgelerden cevap ürettiğini kanıtlamak için yazılmıştır.

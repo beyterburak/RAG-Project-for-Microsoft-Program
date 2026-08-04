@@ -23,10 +23,10 @@ function islemNo() {
 
 export default function DanismaMasasi() {
   const [question, setQuestion] = useState("");
-  const [variant, setVariant] = useState<Variant>("v2");
+  const [variant, setVariant] = useState<Variant>("v1");
   const [pending, setPending] = useState(false);
   const [askedQuestion, setAskedQuestion] = useState("");
-  const [askedVariant, setAskedVariant] = useState<Variant>("v2");
+  const [askedVariant, setAskedVariant] = useState<Variant>("v1");
   const [stages, setStages] = useState<Stage[]>([]);
   const [chunks, setChunks] = useState<Chunk[]>([]);
   const [text, setText] = useState("");
@@ -188,12 +188,12 @@ export default function DanismaMasasi() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex gap-2" role="radiogroup" aria-label="Cevaplama modu">
                 <button type="button" className="usul-radio" data-checked={variant === "v1"}
-                  onClick={() => setVariant("v1")}>
+                  onClick={() => setVariant("v1")} title="Ölçümde en iyi sonucu veren mod">
                   <span className="kutu" /> STANDART (v1)
                 </button>
                 <button type="button" className="usul-radio" data-checked={variant === "v2"}
-                  onClick={() => setVariant("v2")}>
-                  <span className="kutu" /> DÜZELTMELİ (v2)
+                  onClick={() => setVariant("v2")} title="Denetimli deneysel mod — ölçümde v1'in gerisinde kaldı">
+                  <span className="kutu" /> DÜZELTMELİ (v2, deneysel)
                 </button>
               </div>
               <button className="stamp-btn" disabled={pending || !question.trim()}>
