@@ -20,6 +20,7 @@ from pathlib import Path
 
 import config
 from src.corrective import CorrectiveSession
+from src.prompts import REFUSAL
 from src.rag import RagSession
 
 EVAL_SET_PATH = config.EVAL_DIR / "eval_set.json"
@@ -29,6 +30,22 @@ RESULTS_DIR = config.EVAL_DIR / "results"
 def _match_keywords(answer: str, keywords: list[str]) -> bool:
     a = answer.casefold()
     return any(k.casefold() in a for k in keywords)
+
+
+# Ret sayılan ifadeler: model her zaman REFUSAL'ı birebir yazmıyor
+# ("belgelerinde belirtilmemiş", "belgelerde bilgi bulunmamaktadır" gibi).
+# Ölçümün adil olması için "belge" kökü + olumsuzluk birlikte aranır;
+# yalnız olumsuzluk aramak yanlış olurdu — "sıcaklık sensörü bulunmamaktadır"
+# gibi HATALI cevaplar da ret sayılırdı.
+_RET_OLUMSUZ = ("yok", "bulunmamakta", "bulunmuyor", "belirtilmemiş",
+                "mevcut değil", "yer almamakta", "geçmemekte")
+
+
+def is_refusal_text(answer: str) -> bool:
+    a = answer.casefold()
+    if REFUSAL.casefold() in a:
+        return True
+    return "belge" in a and any(k in a for k in _RET_OLUMSUZ)
 
 
 def evaluate_question(session: RagSession, q: dict) -> dict:
@@ -46,15 +63,41 @@ def evaluate_question(session: RagSession, q: dict) -> dict:
         "llm_seconds": round(result.llm_seconds, 3),
     }
 
+    reddetti = is_refusal_text(result.answer)
     if q["type"] == "answerable":
         row["recall_hit"] = any(s in retrieved_sources for s in q["expected_sources"])
         row["top1_hit"] = bool(retrieved_sources) and retrieved_sources[0] in q["expected_sources"]
-        row["correct"] = (not result.is_refusal) and _match_keywords(result.answer, q["keywords"])
+        row["correct"] = (not reddetti) and _match_keywords(result.answer, q["keywords"])
     else:
         row["recall_hit"] = None
         row["top1_hit"] = None
-        row["correct"] = result.is_refusal
+        row["correct"] = reddetti
     return row
+
+
+def rescore(path: Path) -> dict:
+    """Kayıtlı sonuç dosyasını güncel ölçüm kriteriyle yeniden puanlar.
+
+    Ham veri (cevap metinleri, getirilen parçalar, süreler) değişmez; yalnız
+    'correct' kararı ve özet yeniden hesaplanır — ölçüm kriteri değiştiğinde
+    tüm hattı yeniden koşturmadan adil karşılaştırma sağlar.
+    """
+    data = json.loads(path.read_text(encoding="utf-8"))
+    questions = {q["id"]: q for q in
+                 json.loads(EVAL_SET_PATH.read_text(encoding="utf-8"))["questions"]}
+
+    for row in data["rows"]:
+        q = questions[row["id"]]
+        reddetti = is_refusal_text(row["answer"])
+        if row["type"] == "answerable":
+            row["correct"] = (not reddetti) and _match_keywords(row["answer"], q["keywords"])
+        else:
+            row["correct"] = reddetti
+
+    data["summary"] = summarize(data["rows"])
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    _write_markdown(path.with_suffix(".md"), data["variant"], data["summary"], data["rows"])
+    return data["summary"]
 
 
 def summarize(rows: list[dict]) -> dict:
