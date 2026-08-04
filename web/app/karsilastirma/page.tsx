@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import {
   results,
   type EvalResults,
@@ -9,6 +8,7 @@ import {
   type VariantResult,
 } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Sekmeler } from "@/components/Sekmeler";
 
 const pct = (x: number) => `%${Math.round(x * 1000) / 10}`;
 
@@ -67,10 +67,7 @@ export default function TeftisRaporu() {
         <ThemeToggle />
       </header>
 
-      <nav className="flex gap-1.5 mt-6 border-b border-line-strong px-2">
-        <Link href="/" className="file-tab">DANIŞMA MASASI</Link>
-        <span className="file-tab" data-active="true">TEFTİŞ RAPORU</span>
-      </nav>
+      <Sekmeler aktif="/karsilastirma" />
 
       {data === undefined && (
         <p className="mt-10 text-center text-muted italic daktilo-bekleme">

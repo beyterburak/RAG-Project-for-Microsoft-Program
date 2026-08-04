@@ -1,9 +1,16 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { askStream, health, type Chunk, type Variant } from "@/lib/api";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Sekmeler } from "@/components/Sekmeler";
+
+const ORNEK_SORULAR = [
+  "Zyntrix X9'un garanti süresi ne kadar?",
+  "Zyntrix X9'un satış fiyatı ne kadar?",
+  "X9 ile X9 Pro arasındaki farklar nelerdir?",
+  "İlişkisel veri modelini kim, ne zaman geliştirdi?",
+];
 
 type Stage = { label: string; detail: string };
 type DoneMeta = {
@@ -35,6 +42,7 @@ export default function DanismaMasasi() {
   const [error, setError] = useState<string | null>(null);
   const [apiUp, setApiUp] = useState<boolean | null>(null);
   const [refNo, setRefNo] = useState("");
+  const [acikFis, setAcikFis] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -48,11 +56,7 @@ export default function DanismaMasasi() {
     []
   );
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    const q = question.trim();
-    if (!q || pending) return;
-    const v = variant;
+  async function sor(soru: string, v: Variant) {
     setPending(true);
     setError(null);
     setStages([]);
@@ -60,12 +64,13 @@ export default function DanismaMasasi() {
     setText("");
     setMeta(null);
     setRevoked(false);
-    setAskedQuestion(q);
+    setAcikFis(null);
+    setAskedQuestion(soru);
     setAskedVariant(v);
     setRefNo(islemNo());
 
     try {
-      await askStream(q, v, (ev) => {
+      await askStream(soru, v, (ev) => {
         switch (ev.type) {
           case "graded":
             setStages((s) => [...s, {
@@ -122,6 +127,19 @@ export default function DanismaMasasi() {
     }
   }
 
+  function ornekSor(soru: string) {
+    if (pending) return;
+    setQuestion(soru);
+    sor(soru, variant);
+  }
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    const q = question.trim();
+    if (!q || pending) return;
+    sor(q, variant);
+  }
+
   const showTutanak = pending || text || meta || revoked;
 
   return (
@@ -149,15 +167,15 @@ export default function DanismaMasasi() {
         </div>
       </header>
 
-      {/* ===== Dosya sekmeleri ===== */}
-      <nav className="flex gap-1.5 mt-6 border-b border-line-strong px-2">
-        <span className="file-tab" data-active="true">DANIŞMA MASASI</span>
-        <Link href="/karsilastirma" className="file-tab">TEFTİŞ RAPORU</Link>
-        <span className="ml-auto self-center font-mono text-[0.62rem] tracking-widest pb-1"
-          style={{ color: apiUp === false ? "var(--stamp)" : "var(--muted)" }}>
-          {apiUp === null ? "SERVİS: ?" : apiUp ? "SERVİS: AÇIK" : "SERVİS: KAPALI"}
-        </span>
-      </nav>
+      <Sekmeler
+        aktif="/"
+        sag={
+          <span className="font-mono text-[0.62rem] tracking-widest"
+            style={{ color: apiUp === false ? "var(--stamp)" : "var(--muted)" }}>
+            {apiUp === null ? "SERVİS: ?" : apiUp ? "SERVİS: AÇIK" : "SERVİS: KAPALI"}
+          </span>
+        }
+      />
 
       <main className="grid grid-cols-1 lg:grid-cols-[7fr_5fr] gap-8 mt-8 items-start">
         {/* ===== Sol: soru formu + tutanak ===== */}
@@ -268,8 +286,24 @@ export default function DanismaMasasi() {
           )}
 
           {!showTutanak && !error && (
-            <div className="mt-10 text-center text-muted italic text-sm">
-              <p>Arşiv hazır — sorunuzu yazın, gerisini raflar halleder.</p>
+            <div className="mt-8">
+              <p className="text-center text-muted italic text-sm mb-5">
+                Arşiv hazır — sorunuzu yazın, gerisini raflar halleder.
+              </p>
+              <p className="font-mono text-[0.62rem] tracking-[0.2em] text-muted mb-3">
+                HAZIR TALEP FİŞLERİ
+              </p>
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                {ORNEK_SORULAR.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => ornekSor(s)}
+                    className="fis p-3 pt-4 text-left text-[0.82rem] leading-snug text-ink-soft hover:text-ink cursor-pointer transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </section>
@@ -305,25 +339,32 @@ export default function DanismaMasasi() {
 
           {chunks.length > 0 && (
             <div className="space-y-4">
-              {chunks.map((c, i) => (
-                <div key={`${c.source}-${c.chunk_index}`} className="fis p-4 pt-5 belge-gelis"
-                  style={{ animationDelay: `${i * 90}ms` }}>
-                  <div className="flex justify-between items-start gap-2 mb-2">
-                    <span className="font-mono text-[0.62rem] font-semibold text-ink-soft break-all">
-                      {c.source} <span className="text-muted">/ parça {c.chunk_index}</span>
-                    </span>
-                    {askedVariant === "v2" && (
-                      <span className="stamp-mark stamp-kabul">KABUL</span>
-                    )}
+              {chunks.map((c, i) => {
+                const kimlik = `${c.source}-${c.chunk_index}`;
+                const acik = acikFis === kimlik;
+                return (
+                  <div key={kimlik} className="fis p-4 pt-5 belge-gelis cursor-pointer"
+                    style={{ animationDelay: `${i * 90}ms` }}
+                    onClick={() => setAcikFis(acik ? null : kimlik)}
+                    title={acik ? "Kapatmak için tıklayın" : "Tam metni görmek için tıklayın"}>
+                    <div className="flex justify-between items-start gap-2 mb-2">
+                      <span className="font-mono text-[0.62rem] font-semibold text-ink-soft break-all">
+                        {c.source} <span className="text-muted">/ parça {c.chunk_index}</span>
+                      </span>
+                      {askedVariant === "v2" && (
+                        <span className="stamp-mark stamp-kabul">KABUL</span>
+                      )}
+                    </div>
+                    <p className={`text-[0.78rem] leading-relaxed text-ink-soft whitespace-pre-line ${acik ? "" : "line-clamp-3"}`}>
+                      {c.text}
+                    </p>
+                    <p className="font-mono text-[0.6rem] text-muted mt-2 flex justify-between">
+                      <span>Benzerlik: {c.score.toFixed(4)}</span>
+                      <span className="text-tab">{acik ? "▴ kapat" : "▾ tam metin"}</span>
+                    </p>
                   </div>
-                  <p className="text-[0.78rem] leading-relaxed text-ink-soft line-clamp-3">
-                    {c.text}
-                  </p>
-                  <p className="font-mono text-[0.6rem] text-muted mt-2">
-                    Benzerlik: {c.score.toFixed(4)}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </aside>

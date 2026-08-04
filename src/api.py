@@ -116,6 +116,41 @@ def ask_stream(req: AskRequest) -> StreamingResponse:
     )
 
 
+@app.get("/api/corpus")
+def corpus() -> dict:
+    """Arşivdeki belgeler ve parça sayıları (Arşiv Kataloğu sayfası için)."""
+    from src import db
+
+    conn = db.connect()
+    try:
+        rows = conn.execute(
+            "SELECT source, COUNT(*), SUM(LENGTH(chunk_text)), "
+            "  (SELECT chunk_text FROM documents i "
+            "   WHERE i.source = d.source ORDER BY chunk_index LIMIT 1) "
+            "FROM documents d GROUP BY source ORDER BY source"
+        ).fetchall()
+    finally:
+        conn.close()
+
+    belgeler = []
+    for source, n, karakter, ilk_parca in rows:
+        # Parçaların ilk satırı "Belge Başlığı — Bölüm" biçiminde (chunking.py);
+        # dosya adı ASCII olduğu için gerçek başlık buradan alınır.
+        ilk_satir = (ilk_parca or "").splitlines()[0] if ilk_parca else source
+        baslik = ilk_satir.split(" — ")[0].strip() or source
+        belgeler.append({
+            "source": source,
+            "title": baslik,
+            "chunks": n,
+            "characters": karakter,
+        })
+    return {
+        "documents": belgeler,
+        "total_documents": len(belgeler),
+        "total_chunks": sum(b["chunks"] for b in belgeler),
+    }
+
+
 @app.get("/api/results")
 def results() -> dict:
     out = {}

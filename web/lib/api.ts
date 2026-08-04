@@ -137,6 +137,28 @@ export async function results(): Promise<EvalResults | null> {
   }
 }
 
+export interface CorpusDoc {
+  source: string;
+  title: string;
+  chunks: number;
+  characters: number;
+}
+
+export interface Corpus {
+  documents: CorpusDoc[];
+  total_documents: number;
+  total_chunks: number;
+}
+
+export async function corpus(): Promise<Corpus | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/corpus`, { cache: "no-store" });
+    return res.ok ? res.json() : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function health(): Promise<{ status: string; chat_model: string } | null> {
   try {
     const res = await fetch(`${API_BASE}/api/health`, { cache: "no-store" });
