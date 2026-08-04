@@ -4,7 +4,7 @@ Microsoft Foundry Local ile **tamamen çevrimdışı** çalışan, kaynak göste
 
 **Program:** Microsoft Türkiye CSU Yaz Programı 2026
 
-📄 [Proje Raporu](docs/proje-raporu.md) · 📊 [Ölçüm Raporu](eval/results/benchmark_v1_vs_v2.md) · 🎤 [Sunum Taslağı](docs/sunum.md)
+📄 [Proje Raporu](docs/proje-raporu.md) · 📊 [Ölçüm Raporu](eval/results/benchmark_v1_vs_v2.md) · 🎤 [Sunum](docs/sunum-2dk.md)
 
 ---
 
